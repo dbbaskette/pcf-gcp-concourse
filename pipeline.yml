@@ -1,0 +1,46 @@
+resources:
+- name: pcf-gcp-concourse
+  type: git
+  source:
+    uri: git@github.com:pivotal-customer0/pcf-gcp-concourse.git
+    branch: master
+    private_key: {{githubsshkey}}
+
+#- name: bosh-gcp-cpi-release
+#  type: git
+#  source:
+#    uri: ?
+#    branch: master
+#    private_key: {{githubsshkey}}
+
+
+- name: gcp-run-id
+  type: semver
+  source:
+    bucket: concourse-gcp
+    key: {{semver_file_name}}
+    initial_version: 1.0.0
+    access_key_id: {{aws_id}}
+    secret_access_key: {{aws_key}}
+
+jobs:
+- name: WipeEnv-Only
+  serial: true
+  max_in_flight: 1
+  serial_groups: [full]
+  plan:
+  - aggregate:
+    - get: pcf-gcp-concourse
+      trigger: false
+  - task: wipe-env
+    config:
+      platform: linux
+      image: docker:///virtmerlin/pcf-gcp-worker
+      inputs:
+        - name: pcf-gcp-concourse
+      run:
+        path: pcf-gcp-concourse/tasks/wipe-env.sh
+      params:
+        gcp_proj_id: {{gcp_proj_id} 
+        gcp_svc_acct_key: {{gcp_svc_acct_key}}
+        gcp_terraform_prefix: {{gcp_terraform_prefix}}
