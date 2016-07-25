@@ -34,7 +34,7 @@ for i in $(gcloud compute instances list | grep $gcp_terraform_prefix | awk '{pr
 	 gcloud compute instances delete $i --quiet --zone $gcp_zone --delete-disks all
 
 done
-echo "All compute/instances with the prefix=$gcp_proj_id in zone=$gcp_zone have been wiped"
+echo "All compute/instances with the prefix=$gcp_proj_id in zone=$gcp_zone have been wiped !!!"
 
 # Wipe Created network and all associated objects (Routes, Firewall Rules, routes)
 echo "Will delete all compute/networks objects with the prefix=$gcp_proj_id in zone=$gcp_zone"
@@ -59,6 +59,6 @@ for z in ${COMPONENT[@]}; do
 	 fi
   done
 done
-
+echo "All compute/networks objects with the prefix=$gcp_proj_id in zone=$gcp_zone have been wiped !!!"
 
 #################### GCP End   ##########################
