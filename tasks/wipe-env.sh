@@ -48,6 +48,7 @@ declare -a COMPONENT=(
 
 for z in ${COMPONENT[@]}; do
 	echo "Will delete all $z objects with the prefix=$gcp_proj_id in zone=$gcp_zone"
+	if [[ $z == "subnets" ]]; then z="networks $z"; fi
 	for i in $(gcloud compute $z list  | grep $gcp_terraform_prefix | grep -v default | awk '{print $1}'); do
    echo "Deleting $z:$i ..."
 	 if [[ $z == "subnets" ]]; then
