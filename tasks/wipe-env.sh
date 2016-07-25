@@ -36,21 +36,20 @@ for i in $(gcloud compute instances list | grep $gcp_terraform_prefix | awk '{pr
 done
 echo "All compute/instances with the prefix=$gcp_proj_id in zone=$gcp_zone have been wiped"
 
-# Wipe CReated network and all associated objects (Routes, Firewall Rules)
-echo "Will delete all compute/networks with the prefix=$gcp_proj_id in zone=$gcp_zone"
+# Wipe Created network and all associated objects (Routes, Firewall Rules, routes)
+declare -a COMPONENT=(
+"firewall-rules"
+"routes"
+"forwarding-rules"
+"networks"
+)
 
-for i in $(gcloud compute firewall-rules list  | grep $gcp_terraform_prefix | awk '{print $1}'); do
-
-	 echo "Deleting Firewall Rule:$i ..."
-	 gcloud compute firewall-rules delete $i --quiet;
-
+for z in ${COMPONENT[@]}; do
+	echo "Will delete all $z objects with the prefix=$gcp_proj_id in zone=$gcp_zone"
+	for i in $(gcloud compute $i list  | grep $gcp_terraform_prefix | awk '{print $1}'); do
+   echo "Deleting $z:$i ..."
+	 gcloud compute $z delete $i --quiet;
 done
 
-for i in $(gcloud compute networks list  | grep $gcp_terraform_prefix | awk '{print $1}'); do
-
-	 echo "Deleting Network:$i ..."
-	 gcloud compute networks delete $i --quiet;
-
-done
 
 #################### GCP End   ##########################
