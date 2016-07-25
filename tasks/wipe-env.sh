@@ -51,7 +51,8 @@ for z in ${COMPONENT[@]}; do
 	for i in $(gcloud compute $z list  | grep $gcp_terraform_prefix | grep -v default | awk '{print $1}'); do
    echo "Deleting $z:$i ..."
 	 if [ $z == "subnets" ]; then
-	    gcloud beta compute networks $z delete $i --quiet;
+		 	echo "using gcloud cli beta function to delete subnet..."
+	    gcloud beta compute networks $z delete $i --region $gcp_region --quiet
 	 else
 		 	gcloud compute $z delete $i --quiet;
 	 fi
