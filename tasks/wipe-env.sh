@@ -26,7 +26,8 @@ gcloud config set project $gcp_proj_id
 
 for i in $(gcloud compute instances list | grep c0-run1 | awk '{print $1}'); do
 
-	 gcloud compute instances delete $i --delete-disks all;
+	 echo "Deleteing Instance:$i ..."
+	 gcloud compute instances delete $i --zone $gcp_zone --delete-disks all;
 
 done
 
