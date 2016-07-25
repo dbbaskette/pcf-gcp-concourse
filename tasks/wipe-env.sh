@@ -23,6 +23,8 @@ gcloud auth activate-service-account --key-file /tmp/blah
 rm -rf /tmp/blah
 
 gcloud config set project $gcp_proj_id
+gcloud config set compute/region $gcp_region
+gcloud config set compute/zone $gcp_zone
 
 # Wipe all GCP Instances for given prefix within Zone ##MG Todo: Serial processing is slow,  look for a quicker way to wipe
 echo "Will delete all compute/instances with the prefix=$gcp_proj_id in zone=$gcp_zone"
@@ -39,7 +41,7 @@ echo "Will delete all compute/networks with the prefix=$gcp_proj_id in zone=$gcp
 for i in $(gcloud compute networks list  | grep c0-run1 | awk '{print $1}'); do
 
 	 echo "Deleting Network:$i ..."
-	 gcloud compute instances delete $i --quiet --zone $gcp_zone;
+	 gcloud compute instances delete $i --quiet;
 
 done
 
