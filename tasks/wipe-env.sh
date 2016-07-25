@@ -28,7 +28,7 @@ gcloud config set compute/zone $gcp_zone
 
 # Wipe all GCP Instances for given prefix within Zone ##MG Todo: Serial processing is slow,  look for a quicker way to wipe
 echo "Will delete all compute/instances with the prefix=$gcp_proj_id in zone=$gcp_zone"
-for i in $(gcloud compute instances list | grep c0-run1 | awk '{print $1}'); do
+for i in $(gcloud compute instances list | grep $gcp_terraform_prefix | awk '{print $1}'); do
 
 	 echo "Deleting Instance:$i ..."
 	 gcloud compute instances delete $i --quiet --zone $gcp_zone --delete-disks all;
@@ -38,7 +38,15 @@ echo "All compute/instances with the prefix=$gcp_proj_id in zone=$gcp_zone have 
 
 # Wipe CReated network and all associated objects (Routes, Firewall Rules)
 echo "Will delete all compute/networks with the prefix=$gcp_proj_id in zone=$gcp_zone"
-for i in $(gcloud compute networks list  | grep c0-run1 | awk '{print $1}'); do
+
+for i in $(gcloud compute firewall-rules list  | grep $gcp_terraform_prefix | awk '{print $1}'); do
+
+	 echo "Deleting Firewall Rule:$i ..."
+	 gcloud compute firewall-rules delete $i --quiet;
+
+done
+
+for i in $(gcloud compute networks list  | grep $gcp_terraform_prefix | awk '{print $1}'); do
 
 	 echo "Deleting Network:$i ..."
 	 gcloud compute networks delete $i --quiet;
