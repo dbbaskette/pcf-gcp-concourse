@@ -46,7 +46,7 @@ declare -a COMPONENT=(
 
 for z in ${COMPONENT[@]}; do
 	echo "Will delete all $z objects with the prefix=$gcp_proj_id in zone=$gcp_zone"
-	for i in $(gcloud compute $i list  | grep $gcp_terraform_prefix | awk '{print $1}'); do
+	for i in $(gcloud compute $z list  | grep $gcp_terraform_prefix | awk '{print $1}'); do
    echo "Deleting $z:$i ..."
 	 gcloud compute $z delete $i --quiet;
   done
