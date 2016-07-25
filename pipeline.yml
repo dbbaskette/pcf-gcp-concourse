@@ -1,4 +1,12 @@
 resources:
+
+- name: pcf-gcp
+  type: git
+  source:
+    uri: git@github.com:pivotal-customer0/pcf-gcp.git
+    branch: master
+    private_key: {{githubsshkey}}
+
 - name: pcf-gcp-concourse
   type: git
   source:
@@ -24,7 +32,7 @@ resources:
     secret_access_key: {{aws_key}}
 
 jobs:
-- name: WipeEnv-Only
+- name: WipeEnv-Only-0
   serial: true
   max_in_flight: 1
   serial_groups: [full]
@@ -47,3 +55,31 @@ jobs:
         gcp_svc_acct_key: {{gcp_svc_acct_key}}
         gcp_terraform_prefix: {{gcp_terraform_prefix}}
         arg_wipe: {{arg_wipe}}
+
+- name: Terraform-IaaS-1
+  serial: true
+  max_in_flight: 1
+  serial_groups: [full]
+  plan:
+  - aggregate:
+    - get: pcf-gcp-concourse
+      trigger: false
+    - get: pcf-gcp
+      trigger: false
+  - task: terrafrom-iaas
+    config:
+      platform: linux
+      image: docker:///virtmerlin/pcf-gcp-worker
+      inputs:
+        - name: pcf-gcp-concourse
+      run:
+        path: pcf-gcp-concourse/tasks/terraform-iaas.sh
+      params:
+        gcp_proj_id: {{gcp_proj_id}}
+        gcp_region: {{gcp_region}}
+        gcp_zone: {{gcp_zone}}
+        gcp_svc_acct_key: {{gcp_svc_acct_key}}
+        gcp_terraform_prefix: {{gcp_terraform_prefix}}
+        gcp_terraform_subnet_bosh: {{gcp_terraform_subnet_bosh}}
+        gcp_terraform_subnet_concourse: {{gcp_terraform_subnet_concourse}}
+        gcp_terraform_subnet_pcf: {{gcp_terraform_subnet_pcf}}
