@@ -41,6 +41,7 @@ jobs:
       run:
         path: pcf-gcp-concourse/tasks/wipe-env.sh
       params:
-        gcp_proj_id: {{gcp_proj_id} 
+        gcp_proj_id: {{gcp_proj_id}}
         gcp_svc_acct_key: {{gcp_svc_acct_key}}
         gcp_terraform_prefix: {{gcp_terraform_prefix}}
+        arg_wipe: {{arg_wipe}}
