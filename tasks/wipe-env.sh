@@ -39,7 +39,7 @@ echo "Will delete all compute/networks with the prefix=$gcp_proj_id in zone=$gcp
 for i in $(gcloud compute networks list  | grep c0-run1 | awk '{print $1}'); do
 
 	 echo "Deleting Network:$i ..."
-	 gcloud compute instances delete $i --quiet $gcp_zone;
+	 gcloud compute instances delete $i --quiet;
 
 done
 
