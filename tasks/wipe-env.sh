@@ -24,10 +24,22 @@ rm -rf /tmp/blah
 
 gcloud config set project $gcp_proj_id
 
+# Wipe all GCP Instances for given prefix within Zone ##MG Todo: Serial processing is slow,  look for a quicker way to wipe
+echo "Will delete all compute/instances with the prefix=$gcp_proj_id in zone=$gcp_zone"
 for i in $(gcloud compute instances list | grep c0-run1 | awk '{print $1}'); do
 
-	 echo "Deleteing Instance:$i ..."
+	 echo "Deleting Instance:$i ..."
 	 gcloud compute instances delete $i --quiet --zone $gcp_zone --delete-disks all;
+
+done
+echo "All compute/instances with the prefix=$gcp_proj_id in zone=$gcp_zone have been wiped"
+
+# Wipe CReated network and all associated objects (Routes, Firewall Rules)
+echo "Will delete all compute/networks with the prefix=$gcp_proj_id in zone=$gcp_zone"
+for i in $(gcloud compute networks list  | grep c0-run1 | awk '{print $1}'); do
+
+	 echo "Deleting Network:$i ..."
+	 gcloud compute instances delete $i --quiet $gcp_zone;
 
 done
 
