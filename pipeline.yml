@@ -65,7 +65,7 @@ jobs:
     - get: pcf-gcp-concourse
       trigger: true
     - get: pcf-gcp
-      trigger: true
+      trigger: false
   - task: terrafrom-iaas
     config:
       platform: linux
