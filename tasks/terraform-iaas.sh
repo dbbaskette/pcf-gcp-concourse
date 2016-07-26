@@ -1,4 +1,3 @@
 #!/bin/bash
 #set -e
-
-exit echo "Insert test here"
+echo "Insert test here"
