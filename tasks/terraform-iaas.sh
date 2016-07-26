@@ -4,7 +4,7 @@ echo "test terraform exec here...."
 
 export PATH=/opt/terraform/terraform:$PATH
 
-terraform plan \
+/opt/terraform/terraform plan \
   -var "project=$gcp_proj_id" \
   -var "region=$gcp_region" \
   -var "resource-prefix=$gcp_terraform_prefix" \
