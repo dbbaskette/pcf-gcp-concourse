@@ -45,7 +45,7 @@ for y in ${ZONE[@]}; do
 done
 
 
-# Wipe Created network and all associated objects (routes,firewall-rules,forwarding-rules,subnets,networks,target-pools)
+# Wipe Created network and all associated objects (routes,firewall-rules,forwarding-rules,subnets,networks,target-pools,etc...)
 echo "Will delete all compute/networks objects with the prefix=$gcp_proj_id in zone=$gcp_zone_1"
 declare -a COMPONENT=(
 "firewall-rules"
@@ -56,6 +56,7 @@ declare -a COMPONENT=(
 "target-pools"
 "http-health-checks"
 "https-health-checks"
+"addresses"
 )
 
 for z in ${COMPONENT[@]}; do
