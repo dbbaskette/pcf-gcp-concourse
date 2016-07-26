@@ -35,7 +35,10 @@ $gcp_zone_2
 
 for y in ${ZONE[@]}; do
 	echo "----------------------------------------------------------------------------------------------"
-  echo "Will delete all compute/instances objects with the prefix=$gcp_proj_id in zone=$y"
+  echo "Will delete all compute/instances objects with the prefix=$gcp_terraform_prefix in:
+	echo "project=$gcp_proj_id"
+	echo "region=$gcp_region"
+	echo "zone=$y"
 	echo "----------------------------------------------------------------------------------------------"
   for i in $(gcloud compute instances list | grep $gcp_terraform_prefix | grep $y | awk '{print $1}'); do
 
