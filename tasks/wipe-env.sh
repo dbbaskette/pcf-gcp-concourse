@@ -24,7 +24,7 @@ rm -rf /tmp/blah
 
 gcloud config set project $gcp_proj_id
 gcloud config set compute/region $gcp_region
-#gcloud config set compute/zone $gcp_zone_1
+
 
 
 # Wipe all GCP Instances for given prefix within Zone ##MG Todo: Serial processing is slow,  look for a quicker way to wipe Instances
@@ -34,7 +34,9 @@ $gcp_zone_2
 )
 
 for y in ${ZONE[@]}; do
+	echo "----------------------------------------------------------------------------------------------"
   echo "Will delete all compute/instances objects with the prefix=$gcp_proj_id in zone=$y"
+	echo "----------------------------------------------------------------------------------------------"
   for i in $(gcloud compute instances list | grep $gcp_terraform_prefix | grep $y | awk '{print $1}'); do
 
   	 echo "Deleting Instance:$i ..."
@@ -60,9 +62,9 @@ declare -a COMPONENT=(
 )
 
 for z in ${COMPONENT[@]}; do
-	echo "-----------------------------------------------------------------------------"
+	echo "----------------------------------------------------------------------------------------------"
 	echo "Will delete all $z objects with the prefix=$gcp_proj_id in region=$gcp_region"
-	echo "-----------------------------------------------------------------------------"
+	echo "----------------------------------------------------------------------------------------------"
 	if [[ $z == "subnets" ]]; then z="networks $z"; fi
 	for i in $(gcloud compute $z list  | grep $gcp_terraform_prefix | grep -v default | awk '{print $1}'); do
    echo "Deleting $z:$i ..."
