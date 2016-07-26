@@ -24,20 +24,20 @@ rm -rf /tmp/blah
 
 gcloud config set project $gcp_proj_id
 gcloud config set compute/region $gcp_region
-gcloud config set compute/zone $gcp_zone
+gcloud config set compute/zone $gcp_zone_1_1
 
 # Wipe all GCP Instances for given prefix within Zone ##MG Todo: Serial processing is slow,  look for a quicker way to wipe Instances
-echo "Will delete all compute/instances objects with the prefix=$gcp_proj_id in zone=$gcp_zone"
+echo "Will delete all compute/instances objects with the prefix=$gcp_proj_id in zone=$gcp_zone_1"
 for i in $(gcloud compute instances list | grep $gcp_terraform_prefix | awk '{print $1}'); do
 
 	 echo "Deleting Instance:$i ..."
-	 gcloud compute instances delete $i --quiet --zone $gcp_zone --delete-disks all
+	 gcloud compute instances delete $i --quiet --zone $gcp_zone_1 --delete-disks all
 
 done
-echo "All compute/instances with the prefix=$gcp_proj_id in zone=$gcp_zone have been wiped !!!"
+echo "All compute/instances with the prefix=$gcp_proj_id in zone=$gcp_zone_1 have been wiped !!!"
 
 # Wipe Created network and all associated objects (Routes, Firewall Rules, routes)
-echo "Will delete all compute/networks objects with the prefix=$gcp_proj_id in zone=$gcp_zone"
+echo "Will delete all compute/networks objects with the prefix=$gcp_proj_id in zone=$gcp_zone_1"
 declare -a COMPONENT=(
 "firewall-rules"
 "routes"
@@ -47,7 +47,7 @@ declare -a COMPONENT=(
 )
 
 for z in ${COMPONENT[@]}; do
-	echo "Will delete all $z objects with the prefix=$gcp_proj_id in zone=$gcp_zone"
+	echo "Will delete all $z objects with the prefix=$gcp_proj_id in zone=$gcp_zone_1"
 	if [[ $z == "subnets" ]]; then z="networks $z"; fi
 	for i in $(gcloud compute $z list  | grep $gcp_terraform_prefix | grep -v default | awk '{print $1}'); do
    echo "Deleting $z:$i ..."
@@ -59,6 +59,6 @@ for z in ${COMPONENT[@]}; do
 	 fi
   done
 done
-echo "All compute/networks objects with the prefix=$gcp_proj_id in zone=$gcp_zone have been wiped !!!"
+echo "All compute/networks objects with the prefix=$gcp_proj_id in zone=$gcp_zone_1 have been wiped !!!"
 
 #################### GCP End   ##########################

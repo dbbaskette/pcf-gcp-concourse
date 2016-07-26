@@ -32,7 +32,7 @@ resources:
     secret_access_key: {{aws_key}}
 
 jobs:
-- name: WipeEnv-Only-0
+- name: WipeEnv-0
   serial: true
   max_in_flight: 1
   serial_groups: [full]
@@ -51,7 +51,8 @@ jobs:
       params:
         gcp_proj_id: {{gcp_proj_id}}
         gcp_region: {{gcp_region}}
-        gcp_zone: {{gcp_zone}}
+        gcp_zone_1: {{gcp_zone_1}}
+        gcp_zone_2: {{gcp_zone_2}}
         gcp_svc_acct_key: {{gcp_svc_acct_key}}
         gcp_terraform_prefix: {{gcp_terraform_prefix}}
         arg_wipe: {{arg_wipe}}
@@ -62,24 +63,30 @@ jobs:
   serial_groups: [full]
   plan:
   - aggregate:
-    - get: pcf-gcp-concourse
-      trigger: true
     - get: pcf-gcp
+      trigger: false
+    - get: pcf-gcp-concourse
       trigger: false
   - task: terrafrom-iaas
     config:
       platform: linux
       image: docker:///virtmerlin/pcf-gcp-worker
       inputs:
+        - name: pcf-gcp
         - name: pcf-gcp-concourse
       run:
         path: pcf-gcp-concourse/tasks/terraform-iaas.sh
       params:
         gcp_proj_id: {{gcp_proj_id}}
         gcp_region: {{gcp_region}}
-        gcp_zone: {{gcp_zone}}
+        gcp_zone_1: {{gcp_zone_1}}
+        gcp_zone_2: {{gcp_zone_2}}
         gcp_svc_acct_key: {{gcp_svc_acct_key}}
         gcp_terraform_prefix: {{gcp_terraform_prefix}}
         gcp_terraform_subnet_bosh: {{gcp_terraform_subnet_bosh}}
-        gcp_terraform_subnet_concourse: {{gcp_terraform_subnet_concourse}}
-        gcp_terraform_subnet_pcf: {{gcp_terraform_subnet_pcf}}
+        gcp_terraform_subnet_concourse_private: {{gcp_terraform_subnet_concourse_private}}
+        gcp_terraform_subnet_concourse_public: {{gcp_terraform_subnet_concourse_public}}
+        gcp_terraform_subnet_pcf_zone1_private: {{gcp_terraform_subnet_pcf_zone1_private}}
+        gcp_terraform_subnet_pcf_zone1_public: {{gcp_terraform_subnet_pcf_zone1_public}}
+        gcp_terraform_subnet_pcf_zone2_private: {{gcp_terraform_subnet_pcf_zone2_private}}
+        gcp_terraform_subnet_pcf_zone2_public: {{gcp_terraform_subnet_pcf_zone2_public}}
