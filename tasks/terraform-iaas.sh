@@ -18,4 +18,5 @@ export PATH=/opt/terraform/terraform:$PATH
   -var "pcf-subnet-private-zone2-cidr-range=$gcp_terraform_subnet_pcf_zone2_private" \
   -var "pcf-subnet-public-zone2-cidr-range=$gcp_terraform_subnet_pcf_zone2_public" \
   -var "sys-domain=$pcf_ert_sys_domain" \
+  -var "key-json=$gcp_svc_acct_key"
   pcf-gcp/terraform/pcf
