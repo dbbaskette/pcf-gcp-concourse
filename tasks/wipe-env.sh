@@ -82,7 +82,7 @@ for z in ${COMPONENT[@]}; do
   done
 done
 echo "=============================================================================================="
-echo "All compute/networks objects with the prefix=$gcp_proj_id in region=$gcp_region have been wiped !!!"
+echo "All compute/networks objects with the prefix=$gcp_terraform_prefix in region=$gcp_region have been wiped !!!"
 echo "=============================================================================================="
 
 #################### GCP End   ##########################
