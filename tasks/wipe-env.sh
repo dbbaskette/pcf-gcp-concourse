@@ -35,7 +35,7 @@ $gcp_zone_2
 
 for y in ${ZONE[@]}; do
 	echo "----------------------------------------------------------------------------------------------"
-  echo "Will delete all compute/instances objects with the prefix=$gcp_terraform_prefix in:
+  echo "Will delete all compute/instances objects with the prefix=$gcp_terraform_prefix in:"
 	echo "project=$gcp_proj_id"
 	echo "region=$gcp_region"
 	echo "zone=$y"
