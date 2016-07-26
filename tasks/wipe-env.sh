@@ -46,7 +46,9 @@ for y in ${ZONE[@]}; do
   	 gcloud compute instances delete $i --quiet --zone $y --delete-disks all
 
   done
-  echo "All compute/instances with the prefix=$gcp_proj_id in zone=$y have been wiped !!!"
+	echo "=============================================================================================="
+  echo "All compute/instances with the prefix=$gcp_terraform_prefix in zone=$y have been wiped !!!"
+	echo "=============================================================================================="
 done
 
 
@@ -79,6 +81,8 @@ for z in ${COMPONENT[@]}; do
 	 fi
   done
 done
+echo "=============================================================================================="
 echo "All compute/networks objects with the prefix=$gcp_proj_id in region=$gcp_region have been wiped !!!"
+echo "=============================================================================================="
 
 #################### GCP End   ##########################
