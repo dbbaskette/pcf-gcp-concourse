@@ -2,6 +2,8 @@
 #set -e
 echo "test terraform exec here...."
 
+export PATH=/opt/terraform/terraform:$PATH
+
 terraform plan \
   -var "project=$gcp_proj_id" \
   -var "region=$gcp_region" \
