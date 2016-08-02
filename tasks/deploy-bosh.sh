@@ -22,7 +22,8 @@ perl -pi -e "s/<<gcp_region>>/$gcp_region/g" $bosh_manifest
 perl -pi -e "s/<<gcp_proj_id>>/$gcp_proj_id/g" $bosh_manifest
 perl -pi -e "s/<<gcp_zone_1>>/$gcp_zone_1/g" $bosh_manifest
 
-
+echo "Will use the following manifest:"
+cat $bosh_manifest
 
 
 
