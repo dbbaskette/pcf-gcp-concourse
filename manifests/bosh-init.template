@@ -6,8 +6,8 @@ releases:
     url: https://bosh.io/d/github.com/cloudfoundry/bosh?v=257.3
     sha1: e4442afcc64123e11f2b33cc2be799a0b59207d0
   - name: bosh-google-cpi
-    url: https://storage.googleapis.com/bosh-cpi-artifacts/bosh-google-cpi-24.2.0.tgz
-    sha1: 80d3ef039cb0ed014e97eeea10569598804659d3
+    url: https://storage.googleapis.com/bosh-cpi-artifacts/bosh-google-cpi-24.3.0.tgz
+    sha1: f62cebd284d682121a5b4075d0c60a47dd3981ca
 
 resource_pools:
   - name: vms
@@ -128,7 +128,7 @@ jobs:
         resurrector_enabled: true
 
       google: &google_properties
-        project: google.com:<<gcp_proj_id>>
+        project: <<gcp_proj_id>>
         default_zone: <<gcp_zone_1>>
 
       agent:

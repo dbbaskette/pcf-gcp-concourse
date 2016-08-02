@@ -36,6 +36,8 @@ cat $bosh_manifest
 
 # Deploy BOSH !!!MG We need to add ssh to remote node here
 echo "Deploying BOSH ..."
+gcloud compute copy-files ${bosh_manifest} ${gcp_terraform_prefix}-bosh-bastion:/home/bosh --zone ${gcp_zone_1} --quiet
+gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion --command "cd /home/bosh && bosh-init deploy /home/bosh/bosh-init.yml" --zone ${gcp_zone_1}
 #bosh-init deploy /tmp/bosh.yml
 
 # Target Bosh and test Status Reply
