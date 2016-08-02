@@ -40,3 +40,4 @@ echo "sleep 3 minutes while BOSH starts..."
 #bosh -n target https://${bosh_deployment_network_ip}
 #bosh -n login ${bosh_deployment_user} ${bosh_deployment_passwd}
 #bosh status
+exit 1
