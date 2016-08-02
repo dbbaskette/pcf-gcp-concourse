@@ -49,9 +49,16 @@ gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
 --zone ${gcp_zone_1}
 
 gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
---command "cd /home/bosh && bosh-init --version && bosh-init deploy /home/bosh/bosh-init.yml" \
+--command "wget $(wget -q -O- https://bosh.io/docs/install-bosh-init.html | grep \"bosh-init for Linux (amd64)\" | awk -F \"\'\" '{print$2}') -O /home/bosh/bosh-init" \
 --zone ${gcp_zone_1}
 
+gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
+--command "chmod 755 /home/bosh/bosh-init" \
+--zone ${gcp_zone_1}
+
+gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
+--command "cd /home/bosh && bosh_exec=$(which bosh-init) && $bosh_exec --version && bosh-init deploy /home/bosh/bosh-init.yml" \
+--zone ${gcp_zone_1}
 
 echo "Sleeping 3 minutes while BOSH starts..."
 sleep 180
