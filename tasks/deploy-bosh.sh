@@ -11,7 +11,7 @@ gcloud config set compute/region $gcp_region
 
 
 #################### Gen BOSH Manifest ######################
-#### Edit Bosh Manifest & Deploy BOSH
+#### Edit Bosh Manifest & Deploy BOSH, at seom point in future we can change to ENAML
 echo "Updating BOSH Manifest template $bosh_manifest_template ..."
 if [ ! -f $bosh_manifest_template ]; then
     echo "Error: Bosh Manifest $bosh_manifest_template not found !!!"
@@ -30,6 +30,8 @@ perl -pi -e "s/<<gcp_terraform_prefix>>/$gcp_terraform_prefix/g" $bosh_manifest
 perl -pi -e "s/<<gcp_region>>/$gcp_region/g" $bosh_manifest
 perl -pi -e "s/<<gcp_proj_id>>/$gcp_proj_id/g" $bosh_manifest
 perl -pi -e "s/<<gcp_zone_1>>/$gcp_zone_1/g" $bosh_manifest
+perl -pi -e "s/<<bosh_director_user>>/$bosh_director_user/g" $bosh_manifest
+perl -pi -e "s/<<bosh_director_password>>/$bosh_director_password/g" $bosh_manifest
 
 echo "Will use the following manifest:"
 cat $bosh_manifest
@@ -40,21 +42,25 @@ cat $bosh_manifest
 echo "Deploying BOSH ..."
 # Send Manifest up to Bastion
 gcloud compute copy-files ${bosh_manifest} ${gcp_terraform_prefix}-bosh-bastion:/home/bosh --zone ${gcp_zone_1} --quiet
+sleep 60
 # Start bosh-init deploy on Bastion
 gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
---command "cd /home/bosh && \
-if [ -f /home/bosh/bosh-init-state.json ]; then rm -rf /home/bosh/bosh-init-state.json ; fi && \
-bosh-init deploy /home/bosh/bosh-init.yml" \
+--command "cd /home/bosh && if [ -f /home/bosh/bosh-init-state.json ]; then rm -rf /home/bosh/bosh-init-state.json ; fi && /sbin/bosh-init deploy /home/bosh/bosh-init.yml" \
 --zone ${gcp_zone_1}
 
-
-# Target Bosh and test Status Reply
 echo "sleep 3 minutes while BOSH starts..."
-#sleep 180
-#BOSH_TARGET=$(cat /tmp/bosh.yml | shyaml get-values jobs.0.networks.0.static_ips)
-#BOSH_LOGIN=$(cat /tmp/bosh.yml | shyaml get-value jobs.0.properties.director.user_management.local.users.0.name)
-#BOSH_PASSWD=$(cat /tmp/bosh.yml | shyaml get-value jobs.0.properties.director.user_management.local.users.0.password)
-#bosh -n target https://${bosh_deployment_network_ip}
-#bosh -n login ${bosh_deployment_user} ${bosh_deployment_passwd}
-#bosh status
-exit 1
+sleep 180
+# Target BOSH
+gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
+--command "bosh -n target https://${gcp_terraform_subnet_bosh_static}" \
+--zone ${gcp_zone_1}
+
+#Login to BOSH
+gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
+--command "bosh -n login ${bosh_director_user} ${bosh_director_password}" \
+--zone ${gcp_zone_1}
+
+#Get BOSH Status
+gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
+--command "bosh -n status" \
+--zone ${gcp_zone_1}

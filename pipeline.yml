@@ -114,3 +114,5 @@ jobs:
         gcp_terraform_subnet_bosh_gateway: {{gcp_terraform_subnet_bosh_gateway}}
         gcp_terraform_subnet_bosh_static: {{gcp_terraform_subnet_bosh_static}}
         bosh_manifest_template: {{bosh_manifest_template}}
+        bosh_director_user: {{bosh_director_user}}
+        bosh_director_password: {{bosh_director_password}}
