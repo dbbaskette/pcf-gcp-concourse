@@ -44,9 +44,9 @@ networks:
         subnetwork_name: <<gcp_terraform_prefix>>-subnet-bosh-<<gcp_region>>
         ephemeral_external_ip: false
         tags:
+          - <<gcp_terraform_prefix>>-instance
           - nat-traverse
           - no-ip
-          - <<gcp_terraform_prefix>>-instance
 
 jobs:
   - name: bosh

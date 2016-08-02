@@ -255,7 +255,7 @@ resource "google_compute_instance" "bosh-bastion" {
   machine_type = "n1-standard-1"
   zone         = "${var.zone1}"
 
-  tags = ["nat-traverse", "allow-ssh"]
+  tags = ["${var.resource-prefix}-instance", "nat-traverse", "allow-ssh"]
 
   disk {
     image = "ubuntu-1404-trusty-v20160610"
@@ -308,7 +308,7 @@ resource "google_compute_instance" "nat-gateway" {
   machine_type   = "n1-standard-1"
   zone           = "${var.zone1}"
   can_ip_forward = true
-  tags = ["nat-traverse", "allow-ssh"]
+  tags = ["${var.resource-prefix}-instance", "nat-traverse", "allow-ssh"]
 
   disk {
     image = "ubuntu-1404-trusty-v20160610"
