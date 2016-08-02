@@ -37,7 +37,7 @@ for y in ${ZONE[@]}; do
 	echo "region=$gcp_region"
 	echo "zone=$y"
 	echo "----------------------------------------------------------------------------------------------"
-  for i in $(gcloud compute instances list --filter tags.items[0]~${gcp_terraform_prefix}-instance | grep $y | awk '{print $1}'); do
+  for i in $(gcloud compute instances list --filter "tags.items[0]~${gcp_terraform_prefix}-instance OR tags.items[1]~${gcp_terraform_prefix}-instance OR tags.items[2]~${gcp_terraform_prefix}-instance" | grep $y | awk '{print $1}'); do
 
   	 echo "Deleting Instance:$i ..."
   	 gcloud compute instances delete $i --quiet --zone $y --delete-disks all
