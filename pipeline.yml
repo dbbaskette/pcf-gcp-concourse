@@ -1,12 +1,5 @@
 resources:
 
-- name: pcf-gcp
-  type: git
-  source:
-    uri: git@github.com:pivotal-customer0/pcf-gcp.git
-    branch: master
-    private_key: {{githubsshkey}}
-
 - name: pcf-gcp-concourse
   type: git
   source:
@@ -63,8 +56,6 @@ jobs:
   serial_groups: [full]
   plan:
   - aggregate:
-    - get: pcf-gcp
-      trigger: false
     - get: pcf-gcp-concourse
       trigger: false
   - task: terrafrom-iaas
@@ -72,7 +63,6 @@ jobs:
       platform: linux
       image: docker:///virtmerlin/pcf-gcp-worker
       inputs:
-        - name: pcf-gcp
         - name: pcf-gcp-concourse
       run:
         path: pcf-gcp-concourse/tasks/terraform-iaas.sh
@@ -87,3 +77,30 @@ jobs:
         gcp_terraform_subnet_concourse: {{gcp_terraform_subnet_concourse}}
         gcp_terraform_subnet_pcf_zone1: {{gcp_terraform_subnet_pcf_zone1}}
         gcp_terraform_subnet_pcf_zone2: {{gcp_terraform_subnet_pcf_zone2}}
+
+- name: Deploy-Bosh
+  serial: true
+  max_in_flight: 1
+  serial_groups: [full]
+  plan:
+  - aggregate:
+    - get: pcf-gcp-concourse
+      trigger: false
+  - task: deploy-bosh
+    config:
+      platform: linux
+      image: docker:///virtmerlin/pcf-gcp-worker
+      inputs:
+        - name: pcf-gcp-concourse
+      run:
+        path: pcf-gcp-concourse/tasks/deploy-bosh.sh
+      params:
+        gcp_proj_id: {{gcp_proj_id}}
+        gcp_region: {{gcp_region}}
+        gcp_zone_1: {{gcp_zone_1}}
+        gcp_svc_acct_key: {{gcp_svc_acct_key}}
+        gcp_terraform_prefix: {{gcp_terraform_prefix}}
+        gcp_terraform_subnet_bosh: {{gcp_terraform_subnet_bosh}}
+        gcp_terraform_subnet_bosh_gateway: {{gcp_terraform_subnet_bosh_gateway}}
+        gcp_terraform_subnet_bosh_static: {{gcp_terraform_subnet_bosh_static}}
+        bosh_manifest_template: {{bosh_manifest_template}}
