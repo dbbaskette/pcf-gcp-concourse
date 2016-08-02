@@ -48,7 +48,7 @@ gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
 --command "cd /home/bosh && if [ -f /home/bosh/bosh-init-state.json ]; then rm -rf /home/bosh/bosh-init-state.json ; fi && /sbin/bosh-init deploy /home/bosh/bosh-init.yml" \
 --zone ${gcp_zone_1}
 
-echo "sleep 3 minutes while BOSH starts..."
+echo "Sleeping 3 minutes while BOSH starts..."
 sleep 180
 # Target BOSH
 gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
