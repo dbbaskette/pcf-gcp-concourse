@@ -1,0 +1,163 @@
+---
+name: bosh
+
+releases:
+  - name: bosh
+    url: https://bosh.io/d/github.com/cloudfoundry/bosh?v=257.3
+    sha1: e4442afcc64123e11f2b33cc2be799a0b59207d0
+  - name: bosh-google-cpi
+    url: https://storage.googleapis.com/bosh-cpi-artifacts/bosh-google-cpi-24.2.0.tgz
+    sha1: 80d3ef039cb0ed014e97eeea10569598804659d3
+
+resource_pools:
+  - name: vms
+    network: private
+    stemcell:
+      url: https://storage.googleapis.com/bosh-cpi-artifacts/light-bosh-stemcell-3262.4-google-kvm-ubuntu-trusty-go_agent.tgz
+      sha1: 1f44ee6fc5fd495113694aa772d636bf1a8d645a
+    cloud_properties:
+      machine_type: n1-standard-4
+      root_disk_size_gb: 50
+      root_disk_type: pd-standard
+      service_scopes:
+        - compute
+        - devstorage.full_control
+
+disk_pools:
+  - name: disks
+    disk_size: 32_768
+    cloud_properties:
+      type: pd-standard
+
+networks:
+  - name: vip
+    type: vip
+  - name: private
+    type: manual
+    subnets:
+    - range: <<gcp_terraform_subnet_bosh>>
+      gateway: <<gcp_terraform_subnet_bosh_gateway>>
+      static:
+      - <<gcp_terraform_subnet_bosh_static>>
+      cloud_properties:
+        network_name: <<gcp_terraform_prefix>>-vnet
+        subnetwork_name: <<gcp_terraform_prefix>>-subnet-bosh-<<gcp_region>>
+        ephemeral_external_ip: false
+        tags:
+          - nat-traverse
+          - no-ip
+
+jobs:
+  - name: bosh
+    instances: 1
+
+    templates:
+      - name: nats
+        release: bosh
+      - name: postgres
+        release: bosh
+      - name: powerdns
+        release: bosh
+      - name: blobstore
+        release: bosh
+      - name: director
+        release: bosh
+      - name: health_monitor
+        release: bosh
+      - name: google_cpi
+        release: bosh-google-cpi
+
+    resource_pool: vms
+    persistent_disk_pool: disks
+
+    networks:
+      - name: private
+        static_ips:
+        - <<gcp_terraform_subnet_bosh_static>>
+        default:
+          - dns
+          - gateway
+
+    properties:
+      nats:
+        address: 127.0.0.1
+        user: nats
+        password: nats-password
+
+      postgres: &db
+        listen_address: 127.0.0.1
+        host: 127.0.0.1
+        user: postgres
+        password: postgres-password
+        database: bosh
+        adapter: postgres
+
+      dns:
+        address: <<gcp_terraform_subnet_bosh_static>>
+        domain_name: microbosh
+        db: *db
+        recursor: 169.254.169.254
+
+      blobstore:
+        address: <<gcp_terraform_subnet_bosh_static>>
+        port: 25250
+        provider: dav
+        director:
+          user: director
+          password: director-password
+        agent:
+          user: agent
+          password: agent-password
+
+      director:
+        address: 127.0.0.1
+        name: bosh-gcp
+        db: *db
+        cpi_job: google_cpi
+        user_management:
+        provider: local
+        local:
+          users:
+          - {name: admin, password: admin}
+          - {name: hm, password: hm-password}
+
+      hm:
+        director_account:
+          user: hm
+          password: hm-password
+        resurrector_enabled: true
+
+      google: &google_properties
+        project: google.com:<<gcp_proj_id>>
+        default_zone: <<gcp_zone_1>>
+
+      agent:
+        mbus: nats://nats:nats-password@<<gcp_terraform_subnet_bosh_static>>:4222
+        ntp: *ntp
+        blobstore:
+           options:
+             endpoint: http://<<gcp_terraform_subnet_bosh_static>>:25250
+             user: agent
+             password: agent-password
+
+      ntp: &ntp
+        - 169.254.169.254
+
+cloud_provider:
+  template:
+    name: google_cpi
+    release: bosh-google-cpi
+
+  ssh_tunnel:
+    host: <<gcp_terraform_subnet_bosh_static>>
+    port: 22
+    user: bosh
+    private_key: ~/.ssh/bosh
+
+  mbus: https://mbus:mbus-password@<<gcp_terraform_subnet_bosh_static>>:6868
+
+  properties:
+    google: *google_properties
+    agent: {mbus: "https://mbus:mbus-password@0.0.0.0:6868"}
+    blobstore: {provider: local, path: /var/vcap/micro_bosh/data/cache}
+    ntp: *ntp

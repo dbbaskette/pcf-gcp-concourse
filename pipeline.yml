@@ -86,5 +86,4 @@ jobs:
         gcp_terraform_subnet_bosh: {{gcp_terraform_subnet_bosh}}
         gcp_terraform_subnet_concourse: {{gcp_terraform_subnet_concourse}}
         gcp_terraform_subnet_pcf_zone1: {{gcp_terraform_subnet_pcf_zone1}}
-        gcp_terraform_subnet_pcf_zone1_public: {{gcp_terraform_subnet_pcf_zone1_public}}
-        gcp_terraform_subnet_pcf_zone2_private: {{gcp_terraform_subnet_pcf_zone2_private}}
+        gcp_terraform_subnet_pcf_zone2: {{gcp_terraform_subnet_pcf_zone2}}

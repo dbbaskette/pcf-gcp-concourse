@@ -16,7 +16,7 @@ export PATH=/opt/terraform/terraform:$PATH
   -var "pcf-subnet-zone2-cidr-range=$gcp_terraform_subnet_pcf_zone2" \
   -var "sys-domain=$pcf_ert_sys_domain" \
   -var "key-json=$gcp_svc_acct_key" \
-  pcf-gcp/terraform/pcf
+  pcf-gcp-concourse/terraform/pcf
 
   /opt/terraform/terraform apply \
     -var "project=$gcp_proj_id" \
@@ -30,4 +30,4 @@ export PATH=/opt/terraform/terraform:$PATH
     -var "pcf-subnet-zone2-cidr-range=$gcp_terraform_subnet_pcf_zone2" \
     -var "sys-domain=$pcf_ert_sys_domain" \
     -var "key-json=$gcp_svc_acct_key" \
-    pcf-gcp/terraform/pcf
+    pcf-gcp-concourse/terraform/pcf
