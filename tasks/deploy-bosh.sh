@@ -46,7 +46,8 @@ gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
 --zone ${gcp_zone_1}
 # Start bosh-init deploy on Bastion
 gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
---command "cd /home/bosh && bosh-init deploy /home/bosh/bosh-init.yml" \
+--command "cd /home/bosh && if [ -f /home/bosh/bosh-init-state.json ]; then rm -rf /home/bosh/bosh-init-state.json ; fi && \
+bosh-init deploy /home/bosh/bosh-init.yml" \
 --zone ${gcp_zone_1}
 
 
