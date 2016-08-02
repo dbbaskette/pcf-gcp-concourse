@@ -40,13 +40,6 @@ cat $bosh_manifest
 echo "Deploying BOSH ..."
 # Send Manifest up to Bastion
 gcloud compute copy-files ${bosh_manifest} ${gcp_terraform_prefix}-bosh-bastion:/home/bosh --zone ${gcp_zone_1} --quiet
-# Gen BOSH instance SSH Keys on Bastion
-gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
---command "cd /home/bosh && \
-if [ -f /home/bosh/bosh_key ]; then rm -rf /home/bosh/bosh_key* ; fi && \
-ssh-keygen -t rsa -f bosh_key -P '' -C '' &&
-chmod 400 bosh_key" \
---zone ${gcp_zone_1}
 # Start bosh-init deploy on Bastion
 gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
 --command "cd /home/bosh && \
