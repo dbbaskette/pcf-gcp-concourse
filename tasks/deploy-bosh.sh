@@ -38,19 +38,20 @@ cat $bosh_manifest
 
 
 
-#################### Deploy Bosh ############################
+#################### Deploy Bosh via Bastion ################
 echo "Deploying BOSH ..."
 # Send Manifest up to Bastion
 gcloud compute copy-files ${bosh_manifest} ${gcp_terraform_prefix}-bosh-bastion:/home/bosh --zone ${gcp_zone_1} --quiet
-sleep 60
+
 # Start bosh-init deploy on Bastion
 gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
 --command "if [ -f /home/bosh/bosh-init-state.json ]; then rm -rf /home/bosh/bosh-init-state.json ; fi" \
 --zone ${gcp_zone_1}
 
 gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
---command "cd /home/bosh && /sbin/bosh-init deploy /home/bosh/bosh-init.yml" \
+--command "cd /home/bosh && /usr/bin/bosh-init --version && /usr/bin/bosh-init deploy /home/bosh/bosh-init.yml" \
 --zone ${gcp_zone_1}
+
 
 echo "Sleeping 3 minutes while BOSH starts..."
 sleep 180
