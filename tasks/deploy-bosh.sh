@@ -1,6 +1,13 @@
 #!/bin/bash
 set -e
 
+#################### GCP Auth Begin ##########################
+echo $gcp_svc_acct_key > /tmp/blah
+gcloud auth activate-service-account --key-file /tmp/blah
+rm -rf /tmp/blah
+
+gcloud config set project $gcp_proj_id
+gcloud config set compute/region $gcp_region
 
 #### Edit Bosh Manifest & Deploy BOSH
 echo "Updating BOSH Manifest template $bosh_manifest_template ..."

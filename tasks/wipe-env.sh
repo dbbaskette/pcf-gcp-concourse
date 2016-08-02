@@ -12,13 +12,10 @@ if [ $arg_wipe == "wipe" ];
 fi
 
 
-#################### GCP Begin ##########################
+#################### GCP Auth ##########################
 ## Stopid Reqs ...
 ## Create a svc account & enable the API by hand
-
-
 echo $gcp_svc_acct_key > /tmp/blah
-
 gcloud auth activate-service-account --key-file /tmp/blah
 rm -rf /tmp/blah
 
