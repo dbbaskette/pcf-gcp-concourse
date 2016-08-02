@@ -13,7 +13,8 @@ fi
 bosh_manifest="/tmp/bosh-init.yml"
 cp $bosh_manifest_template $bosh_manifest
 
-perl -pi -e "s/<<gcp_terraform_subnet_bosh>>/$gcp_terraform_subnet_bosh/g" $bosh_manifest
+#Alt regex delim ~ for subnet cidr variable
+perl -pi -e "s~<<gcp_terraform_subnet_bosh>>~$gcp_terraform_subnet_bosh~g" $bosh_manifest
 perl -pi -e "s/<<gcp_terraform_subnet_bosh_gateway>>/$gcp_terraform_subnet_bosh_gateway/g" $bosh_manifest
 perl -pi -e "s/<<gcp_terraform_subnet_bosh_static>>/$gcp_terraform_subnet_bosh_static/g" $bosh_manifest
 perl -pi -e "s/<<gcp_terraform_prefix>>/$gcp_terraform_prefix/g" $bosh_manifest
