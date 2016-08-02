@@ -4,7 +4,7 @@ resources:
   type: git
   source:
     uri: git@github.com:pivotal-customer0/pcf-gcp.git
-    branch: mglynn-dev
+    branch: master
     private_key: {{githubsshkey}}
 
 - name: pcf-gcp-concourse
@@ -84,9 +84,7 @@ jobs:
         gcp_svc_acct_key: {{gcp_svc_acct_key}}
         gcp_terraform_prefix: {{gcp_terraform_prefix}}
         gcp_terraform_subnet_bosh: {{gcp_terraform_subnet_bosh}}
-        gcp_terraform_subnet_concourse_private: {{gcp_terraform_subnet_concourse_private}}
-        gcp_terraform_subnet_concourse_public: {{gcp_terraform_subnet_concourse_public}}
-        gcp_terraform_subnet_pcf_zone1_private: {{gcp_terraform_subnet_pcf_zone1_private}}
+        gcp_terraform_subnet_concourse: {{gcp_terraform_subnet_concourse}}
+        gcp_terraform_subnet_pcf_zone1: {{gcp_terraform_subnet_pcf_zone1}}
         gcp_terraform_subnet_pcf_zone1_public: {{gcp_terraform_subnet_pcf_zone1_public}}
         gcp_terraform_subnet_pcf_zone2_private: {{gcp_terraform_subnet_pcf_zone2_private}}
-        gcp_terraform_subnet_pcf_zone2_public: {{gcp_terraform_subnet_pcf_zone2_public}}
