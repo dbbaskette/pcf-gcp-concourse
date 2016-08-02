@@ -152,7 +152,7 @@ cloud_provider:
     host: <<gcp_terraform_subnet_bosh_static>>
     port: 22
     user: bosh
-    private_key: bosh_key
+    private_key: /home/bosh/bosh_key
 
   mbus: https://mbus:mbus-password@<<gcp_terraform_subnet_bosh_static>>:6868
 
