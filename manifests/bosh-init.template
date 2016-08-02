@@ -46,6 +46,7 @@ networks:
         tags:
           - nat-traverse
           - no-ip
+          - <<gcp_terraform_prefix>>-instance
 
 jobs:
   - name: bosh
