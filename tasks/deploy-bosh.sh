@@ -9,6 +9,8 @@ rm -rf /tmp/blah
 gcloud config set project $gcp_proj_id
 gcloud config set compute/region $gcp_region
 
+
+#################### Gen BOSH Manifest ######################
 #### Edit Bosh Manifest & Deploy BOSH
 echo "Updating BOSH Manifest template $bosh_manifest_template ..."
 if [ ! -f $bosh_manifest_template ]; then
@@ -34,11 +36,19 @@ cat $bosh_manifest
 
 
 
-# Deploy BOSH !!!MG We need to add ssh to remote node here
+#################### Deploy Bosh ############################
 echo "Deploying BOSH ..."
+# Send Manifest up to Bastion
 gcloud compute copy-files ${bosh_manifest} ${gcp_terraform_prefix}-bosh-bastion:/home/bosh --zone ${gcp_zone_1} --quiet
-gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion --command "cd /home/bosh && bosh-init deploy /home/bosh/bosh-init.yml" --zone ${gcp_zone_1}
-#bosh-init deploy /tmp/bosh.yml
+# Gen BOSH instance SSH Keys on Bastion
+gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
+--command "cd /home/bosh && ssh-keygen -t rsa -f bosh_key -P '' -C '' && chmod 400 bosh_key" \
+--zone ${gcp_zone_1}
+# Start bosh-init deploy on Bastion
+gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
+--command "cd /home/bosh && bosh-init deploy /home/bosh/bosh-init.yml" \
+--zone ${gcp_zone_1}
+
 
 # Target Bosh and test Status Reply
 echo "sleep 3 minutes while BOSH starts..."
