@@ -119,7 +119,7 @@ jobs:
         provider: local
         local:
           users:
-          - {name: admin, password: admin}
+          - {name: <<bosh_director_user>>, password: <<bosh_director_password>>}
           - {name: hm, password: hm-password}
 
       hm:

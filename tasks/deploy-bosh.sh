@@ -49,7 +49,7 @@ gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
 --zone ${gcp_zone_1}
 
 gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
---command "cd /home/bosh && /usr/bin/bosh-init --version && /usr/bin/bosh-init deploy /home/bosh/bosh-init.yml" \
+--command "cd /home/bosh && bosh-init --version && bosh-init deploy /home/bosh/bosh-init.yml" \
 --zone ${gcp_zone_1}
 
 

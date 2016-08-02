@@ -94,7 +94,7 @@ jobs:
     - get: pcf-gcp-concourse
       trigger: false
     - get: gcp-run-id
-      trigger: false
+      trigger: true
       passed: [Terraform-IaaS-1]
   - task: deploy-bosh
     config:
