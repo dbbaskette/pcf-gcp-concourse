@@ -142,3 +142,16 @@ fn_gcp_ssh "bosh update cloud-config /home/bosh/cloud-config.yml"
 #############################################################
 #################### Upload Stemcell         ################
 #############################################################
+echo "Uploading stemcell ${stemcell_version} ..."
+# Determine Stemcell
+if [[ ${stemcell_version} -eq "latest" ]]; then
+     AVAIL_GCP_STEMCELLS=$(wget -q -O- https://storage.googleapis.com/bosh-cpi-artifacts | perl -ne 'print map("$_\n", m/<Key>.*?light-bosh-stemcell.*?Key>/g);' | grep -v "<Contents>" | awk -F "-" '{print$4}' | sort -u)
+     IFS=$'\n'
+     STEMCELL_ID=$(echo "${AVAIL_GCP_STEMCELLS[*]}" | sort -nr | head -n1)
+else
+     STEMCELL_ID=$stemcell_version
+fi
+STEMCELL_URL="https://storage.googleapis.com/bosh-cpi-artifacts/light-bosh-stemcell-$STEMCELL_ID-google-kvm-ubuntu-trusty-go_agent.tgz"
+STEMCELL_SHA1="$STEMCELL_URL.sha1"
+#Upload stemcell...
+fn_gcp_ssh "bosh upload stemcell $STEMCELL_URL"
