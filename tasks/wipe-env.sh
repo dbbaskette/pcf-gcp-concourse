@@ -82,4 +82,20 @@ echo "==========================================================================
 echo "All compute/networks objects with the prefix=$gcp_terraform_prefix in region=$gcp_region have been wiped !!!"
 echo "=============================================================================================="
 
+#Wipe Images ,  this pretty much means we want a deicated project
+echo "----------------------------------------------------------------------------------------------"
+echo "Will delete all compute/images stemcell objects where project=$gcp_proj_id"
+echo "----------------------------------------------------------------------------------------------"
+  for x in $(gcloud compute images list | grep $gcp_proj_id | grep stemcell | awk '{print $1}'); do
+
+  	 echo "Deleting Image:$x ..."
+  	 echo gcloud compute images delete $z --quiet
+
+  done
+echo "=============================================================================================="
+echo "All compute/images stemcell objects where project=$gcp_proj_id have been wiped !!!"
+echo "=============================================================================================="
+
+
+
 #################### GCP End   ##########################
