@@ -19,7 +19,7 @@ gcloud compute copy-files $1 ${gcp_terraform_prefix}-bosh-bastion:$2 \
 function fn_gcp_ssh {
   gcloud compute ssh bosh@${gcp_terraform_prefix}-bosh-bastion \
   --command "$1" \
-  --zone ${gcp_zone_1}
+  --zone ${gcp_zone_1} --quiet
 }
 
 #############################################################
