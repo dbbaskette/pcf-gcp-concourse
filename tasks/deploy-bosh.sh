@@ -2,7 +2,7 @@
 set -e
 
 #############################################################
-#################### GCP Auth ###############################
+#################### GCP Auth  & functions ##################
 #############################################################
 echo $gcp_svc_acct_key > /tmp/blah
 gcloud auth activate-service-account --key-file /tmp/blah
@@ -67,47 +67,22 @@ echo "Deploying BOSH ..."
 #gcloud compute copy-files ${bosh_manifest} ${gcp_terraform_prefix}-bosh-bastion:/home/bosh --zone ${gcp_zone_1} --quiet
 fn_gcp_scp_up ${bosh_manifest} "/home/bosh/bosh-init.yml"
 
-
 # Start bosh-init deploy on Bastion, but first check for bosh-init to exist since metadata_startup_script is slow
-#gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
-#--command "while [ ! -f /sbin/bosh-init ]; do echo \"metadata_startup_script has not deployed bosh-init yet...\"; sleep 10 ; done && echo \"Found bosh-init...\"" \
-#--zone ${gcp_zone_1}
 GCP_CMD="while [ ! -f /sbin/bosh-init ]; do echo \"metadata_startup_script has not deployed bosh-init yet...\"; sleep 10 ; done && echo \"Found bosh-init...\""
 fn_gcp_ssh "$GCP_CMD" root
-
 # Test if we are running deploy again on bastion thats already deployed & wipe the json state to deploy new bosh (assumes old one is wiped manual)
-# Occurs when re-running failed deply-bosh-1 step in pipeline
-#gcloud compute ssh bosh@${gcp_terraform_prefix}-bosh-bastion \
-#--command "if [ -f /home/bosh/bosh-init-state.json ]; then rm -rf /home/bosh/bosh-init-state.json ; fi" \
-#--zone ${gcp_zone_1}
 fn_gcp_ssh "if [ -f /home/bosh/bosh-init-state.json ]; then rm -rf /home/bosh/bosh-init-state.json ; fi" root
-
-
 # Run bosh-init on bastion
-#gcloud compute ssh bosh@${gcp_terraform_prefix}-bosh-bastion \
-#--command "cd /home/bosh && bosh-init --version && bosh-init deploy /home/bosh/bosh-init.yml" \
-#--zone ${gcp_zone_1}
 fn_gcp_ssh "cd /home/bosh && bosh-init --version && bosh-init deploy /home/bosh/bosh-init.yml"
 
 echo "Sleeping 3 minutes while BOSH starts..."
 sleep 180
 # Target BOSH
-#gcloud compute ssh bosh@${gcp_terraform_prefix}-bosh-bastion \
-#--command "bosh -n target https://${gcp_terraform_subnet_bosh_static}" \
-#--zone ${gcp_zone_1}
 fn_gcp_ssh "bosh -n target https://${gcp_terraform_subnet_bosh_static}"
-
 #Login to BOSH
 echo "Logging into director with:  bosh -n login ${bosh_director_user} ${bosh_director_password}"
-#gcloud compute ssh bosh@${gcp_terraform_prefix}-bosh-bastion \
-#--command "bosh -n login ${bosh_director_user} ${bosh_director_password}" \
-#--zone ${gcp_zone_1}
 fn_gcp_ssh "bosh -n login ${bosh_director_user} ${bosh_director_password}"
-
 #Get BOSH Status
-#gcloud compute ssh bosh@${gcp_terraform_prefix}-bosh-bastion \
-#--command "bosh -n status" \
-#--zone ${gcp_zone_1}
 fn_gcp_ssh "bosh -n status"
 
 #############################################################
@@ -137,7 +112,7 @@ perl -pi -e "s/<<gcp_terraform_prefix>>/$gcp_terraform_prefix/g" $cloud_config
 perl -pi -e "s/<<gcp_region>>/$gcp_region/g" $cloud_config
 perl -pi -e "s/<<gcp_proj_id>>/$gcp_proj_id/g" $cloud_config
 perl -pi -e "s/<<gcp_zone_1>>/$gcp_zone_1/g" $cloud_config
-perl -pi -e "s/<<gcp_zone_2>>/$gcp_zone_1/g" $cloud_config
+perl -pi -e "s/<<gcp_zone_2>>/$gcp_zone_2/g" $cloud_config
 perl -pi -e "s/<<bosh_director_user>>/$bosh_director_user/g" $cloud_config
 perl -pi -e "s/<<bosh_director_password>>/$bosh_director_password/g" $cloud_config
 perl -pi -e "s/<<bosh_subnet_static>>/$bosh_subnet_static/g" $cloud_config
@@ -155,3 +130,15 @@ perl -pi -e "s/<<pcf_subnet_zone2_DNS>>/$pcf_subnet_zone2_DNS/g" $cloud_config
 
 echo "Will use the following cloud-config:"
 cat $cloud_config
+
+
+#############################################################
+#################### Update Cloud Config     ################
+#############################################################
+echo "Updating Cloud Config ..."
+fn_gcp_scp_up $cloud_config /home/bosh/cloud-config.yml
+fn_gcp_ssh "bosh update cloud-config /home/bosh/cloud-config.yml"
+
+#############################################################
+#################### Upload Stemcell         ################
+#############################################################
