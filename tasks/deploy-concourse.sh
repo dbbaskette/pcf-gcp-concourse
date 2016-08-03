@@ -59,7 +59,7 @@ fn_gcp_ssh "omg-cli register-plugin --type product --pluginpath ~/$CC_ENAML_PLUG
 #############################################################
 ########## generate manifest for Concourse w/ ENAML  ########
 #############################################################
-OMG_CC_DEPLOY_CMD="omg-cli deploy-cloudconfig \
+export OMG_CC_DEPLOY_CMD="omg-cli deploy-cloudconfig \
 --bosh-url https://${gcp_terraform_subnet_bosh_static} \
 --bosh-port 25555 \
 --bosh-user ${bosh_director_user} \
