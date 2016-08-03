@@ -50,29 +50,29 @@ gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
 --zone ${gcp_zone_1}
 
 # Test if we are running deploy again on bastion thats already deployed, occurs when re-running failed stpe in pipeline
-gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
+gcloud compute ssh bosh@${gcp_terraform_prefix}-bosh-bastion \
 --command "if [ -f /home/bosh/bosh-init-state.json ]; then rm -rf /home/bosh/bosh-init-state.json ; fi" \
 --zone ${gcp_zone_1}
 
 # Run bosh-init on bastion
-gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
+gcloud compute ssh bosh@${gcp_terraform_prefix}-bosh-bastion \
 --command "cd /home/bosh && bosh-init --version && bosh-init deploy /home/bosh/bosh-init.yml" \
 --zone ${gcp_zone_1}
 
 echo "Sleeping 3 minutes while BOSH starts..."
 sleep 180
 # Target BOSH
-gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
+gcloud compute ssh bosh@${gcp_terraform_prefix}-bosh-bastion \
 --command "bosh -n target https://${gcp_terraform_subnet_bosh_static}" \
 --zone ${gcp_zone_1}
 
 #Login to BOSH
 echo "Logging into director with:  bosh -n login ${bosh_director_user} ${bosh_director_password}"
-gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
+gcloud compute ssh bosh@${gcp_terraform_prefix}-bosh-bastion \
 --command "bosh -n login ${bosh_director_user} ${bosh_director_password}" \
 --zone ${gcp_zone_1}
 
 #Get BOSH Status
-gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
+gcloud compute ssh bosh@${gcp_terraform_prefix}-bosh-bastion \
 --command "bosh -n status" \
 --zone ${gcp_zone_1}

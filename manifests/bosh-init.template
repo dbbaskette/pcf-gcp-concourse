@@ -116,11 +116,11 @@ jobs:
         db: *db
         cpi_job: google_cpi
         user_management:
-        provider: local
-        local:
-          users:
-          - {name: <<bosh_director_user>>, password: <<bosh_director_password>>}
-          - {name: hm, password: hm-password}
+          provider: local
+          local:
+            users:
+            - {name: <<bosh_director_user>>, password: <<bosh_director_password>>}
+            - {name: hm, password: hm-password}
 
       hm:
         director_account:
