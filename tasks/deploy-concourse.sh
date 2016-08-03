@@ -26,7 +26,7 @@ function fn_gcp_ssh {
 ########## Get Latest Concourse Bosh Releases ###############
 #############################################################
 echo "Downloading Concourse Releases ..."
-CC_RELEASES=$(wget -q -O- https://concourse.ci/downloads.html | grep -m 1 "releases/download"  | grep -oh BOSH.* | perl -ne 'print map("$_\n", m/href=\".*?\"/g);' | tr -d '"' | awk -F "href=" '{print$2}')
+fn_gcp_ssh "CC_RELEASES=$(wget -q -O- https://concourse.ci/downloads.html | grep -m 1 \"releases/download\"  | grep -oh BOSH.* | perl -ne 'print map(\"$_\n\", m/href=\\".*?\\"/g);' | tr -d '\"' | awk -F \"href=\" '{print$2}')"
 mkdir -p ~/concourse-releases
 for z in ${CC_RELEASES[@]}; do
   FILE_NAME=$(echo $z | awk -F "/" '{print$NF}')
@@ -42,3 +42,13 @@ fn_gcp_ssh "mkdir -p /home/bosh/concourse-releases"
 for y in $(ls ~/concourse-releases/); do
   fn_gcp_scp_up ~/concourse-releases/$y /home/bosh/concourse-releases/$y
 done
+
+#############################################################
+########## Generate Manifest w ENAML/OMG-CLI  ###############
+#############################################################
+!!!!tmp
+
+wget https://github.com/enaml-ops/omg-product-bundle/releases/download/v0.0.8/concourse-plugin-linux
+wget https://github.com/enaml-ops/omg-cli/releases/download/v0.0.10/aws-cloudconfigplugin-linux
+
+omg-cli register-plugin --type cloudconfig --pluginpath aws-cloudconfigplugin-linux
