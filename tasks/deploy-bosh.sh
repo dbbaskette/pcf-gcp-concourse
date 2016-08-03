@@ -56,7 +56,7 @@ gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
 
 # Run bosh-init on bastion
 gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
---command "cd /home/bosh && /home/bosh/bosh-init --version && /home/bosh/bosh-init deploy /home/bosh/bosh-init.yml" \
+--command "cd /home/bosh && bosh-init --version && bosh-init deploy /home/bosh/bosh-init.yml" \
 --zone ${gcp_zone_1}
 
 echo "Sleeping 3 minutes while BOSH starts..."
