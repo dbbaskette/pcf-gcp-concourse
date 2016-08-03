@@ -73,7 +73,7 @@ fn_gcp_scp_up ${bosh_manifest} "/home/bosh/bosh-init.yml"
 #--command "while [ ! -f /sbin/bosh-init ]; do echo \"metadata_startup_script has not deployed bosh-init yet...\"; sleep 10 ; done && echo \"Found bosh-init...\"" \
 #--zone ${gcp_zone_1}
 GCP_CMD="while [ ! -f /sbin/bosh-init ]; do echo \"metadata_startup_script has not deployed bosh-init yet...\"; sleep 10 ; done && echo \"Found bosh-init...\""
-fn_gcp_ssh $GCP_CMD root
+fn_gcp_ssh "$GCP_CMD" root
 
 # Test if we are running deploy again on bastion thats already deployed & wipe the json state to deploy new bosh (assumes old one is wiped manual)
 # Occurs when re-running failed deply-bosh-1 step in pipeline
