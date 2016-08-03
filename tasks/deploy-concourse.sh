@@ -12,7 +12,7 @@ gcloud config set project $gcp_proj_id
 gcloud config set compute/region $gcp_region
 
 function fn_gcp_scp_up {
-gcloud compute copy-files $1 ${gcp_terraform_prefix}-bosh-bastion:$2 \
+gcloud compute copy-files $1 bosh@${gcp_terraform_prefix}-bosh-bastion:$2 \
 --zone ${gcp_zone_1} --quiet
 }
 
