@@ -1,3 +1,11 @@
+resource_types:
+
+- name: pivnet
+  type: docker-image
+  source:
+    repository: pivotalcf/pivnet-resource
+    tag: latest-final
+
 resources:
 
 - name: pcf-gcp-concourse
@@ -6,14 +14,6 @@ resources:
     uri: git@github.com:pivotal-customer0/pcf-gcp-concourse.git
     branch: master
     private_key: {{githubsshkey}}
-
-#- name: bosh-gcp-cpi-release
-#  type: git
-#  source:
-#    uri: ?
-#    branch: master
-#    private_key: {{githubsshkey}}
-
 
 - name: gcp-run-id
   type: semver
