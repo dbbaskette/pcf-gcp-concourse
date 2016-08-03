@@ -108,6 +108,7 @@ jobs:
         gcp_proj_id: {{gcp_proj_id}}
         gcp_region: {{gcp_region}}
         gcp_zone_1: {{gcp_zone_1}}
+        gcp_zone_2: {{gcp_zone_2}}
         gcp_svc_acct_key: {{gcp_svc_acct_key}}
         gcp_terraform_prefix: {{gcp_terraform_prefix}}
         gcp_terraform_subnet_bosh: {{gcp_terraform_subnet_bosh}}
@@ -126,7 +127,7 @@ jobs:
     - get: pcf-gcp-concourse
       trigger: false
     - get: gcp-run-id
-      trigger: true
+      trigger: false
       passed: [Deploy-Bosh-2]
   - task: deploy-concourse
     config:
@@ -140,8 +141,13 @@ jobs:
         gcp_proj_id: {{gcp_proj_id}}
         gcp_region: {{gcp_region}}
         gcp_zone_1: {{gcp_zone_1}}
+        gcp_zone_2: {{gcp_zone_2}}
         gcp_svc_acct_key: {{gcp_svc_acct_key}}
         gcp_terraform_prefix: {{gcp_terraform_prefix}}
         gcp_terraform_subnet_bosh_static: {{gcp_terraform_subnet_bosh_static}}
+        gcp_terraform_subnet_bosh_gateway: {{gcp_terraform_subnet_bosh_gateway}}
         bosh_director_user: {{bosh_director_user}}
         bosh_director_password: {{bosh_director_password}}
+        bosh_subnet_static:
+        - {{bosh_subnet_static_range_1}}
+        - {{bosh_subnet_static_range_2}}
