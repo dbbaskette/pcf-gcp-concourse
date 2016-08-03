@@ -33,21 +33,7 @@ for z in ${CC_RELEASES[@]}; do
   fn_gcp_ssh "wget $z -O ~/concourse-releases/$FILE_NAME"
 done
 
-#############################################################
-########## Push Releases up to Bastion  #####################
-#############################################################
-#echo "Pushing Concourse Releases to Bastion ..."
-#fn_gcp_ssh "mkdir -p /home/bosh/concourse-releases"
-
-#for y in $(ls ~/concourse-releases/); do
-#  fn_gcp_scp_up ~/concourse-releases/$y /home/bosh/concourse-releases/$y
-#done
-
-#############################################################
-########## Generate Manifest w ENAML/OMG-CLI  ###############
-#############################################################
-#!!!!tmp
-
+exit 1
 #wget https://github.com/enaml-ops/omg-product-bundle/releases/download/v0.0.8/concourse-plugin-linux
 #wget https://github.com/enaml-ops/omg-cli/releases/download/v0.0.10/aws-cloudconfigplugin-linux
 
