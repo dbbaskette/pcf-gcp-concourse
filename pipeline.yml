@@ -116,3 +116,32 @@ jobs:
         bosh_manifest_template: {{bosh_manifest_template}}
         bosh_director_user: {{bosh_director_user}}
         bosh_director_password: {{bosh_director_password}}
+
+- name: Deploy-Concourse-3
+  serial: true
+  max_in_flight: 1
+  serial_groups: [full]
+  plan:
+  - aggregate:
+    - get: pcf-gcp-concourse
+      trigger: false
+    - get: gcp-run-id
+      trigger: true
+      passed: [Deploy-Bosh-2]
+  - task: deploy-concourse
+    config:
+      platform: linux
+      image: docker:///virtmerlin/pcf-gcp-worker
+      inputs:
+        - name: pcf-gcp-concourse
+      run:
+        path: pcf-gcp-concourse/tasks/deploy-concourse.sh
+      params:
+        gcp_proj_id: {{gcp_proj_id}}
+        gcp_region: {{gcp_region}}
+        gcp_zone_1: {{gcp_zone_1}}
+        gcp_svc_acct_key: {{gcp_svc_acct_key}}
+        gcp_terraform_prefix: {{gcp_terraform_prefix}}
+        gcp_terraform_subnet_bosh_static: {{gcp_terraform_subnet_bosh_static}}
+        bosh_director_user: {{bosh_director_user}}
+        bosh_director_password: {{bosh_director_password}}
