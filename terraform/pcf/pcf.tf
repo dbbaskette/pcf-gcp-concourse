@@ -283,7 +283,10 @@ adduser --disabled-password --gecos "" bosh
 apt-get update -y
 apt-get upgrade -y
 apt-get install -y build-essential zlibc zlib1g-dev ruby ruby-dev openssl libxslt-dev libxml2-dev libssl-dev libreadline6 libreadline6-dev libyaml-dev libsqlite3-dev sqlite3
-curl -o /tmp/cf.tgz https://s3.amazonaws.com/go-cli/releases/v6.19.0/cf-cli_6.19.0_linux_x86-64.tgz
+wget "https://cli.run.pivotal.io/stable?release=debian64&source=github" -O /tmp/cf-cli.deb
+dpkg --install /tmp/cf-cli.deb
+wget $(wget -q -O- https://bosh.io/docs/install-bosh-init.html | grep "bosh-init for Linux (amd64)" | awk -F "\'" '{print$2}') -O /sbin/bosh-init
+chmod 755 /sbin/bosh-init
 tar -zxvf /tmp/cf.tgz && mv cf /usr/bin/cf && chmod +x /usr/bin/cf
 gcloud config set compute/zone $zone
 gcloud config set compute/region $region
@@ -293,6 +296,7 @@ sed '1s/^/bosh:/' /home/bosh/.ssh/bosh.pub > /home/bosh/.ssh/bosh.pub.gcp
 chown -R bosh:bosh /home/bosh/.ssh
 gcloud compute project-info add-metadata --metadata-from-file sshKeys=/home/bosh/.ssh/bosh.pub.gcp
 gem install bosh_cli
+gem install cf-uaac
 EOF
 
 }

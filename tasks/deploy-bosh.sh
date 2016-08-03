@@ -40,13 +40,20 @@ cat $bosh_manifest
 
 #################### Deploy Bosh via Bastion ################
 echo "Deploying BOSH ..."
-# Getting latest bosh-init,  easier to do here & push up to bastion to do here than in terraform
-wget $(wget -q -O- https://bosh.io/docs/install-bosh-init.html | grep "bosh-init for Linux (amd64)" | awk -F "\'" '{print$2}') -O /sbin/bosh-init
-chmod 755 /sbin/bosh-init
+echo "Sleeping 2 minutes while Bastion runs metadata_startup_script..."
+sleep 120
+
+# Getting latest bosh-init & CF CLI,  easier to do here & push up to bastion to do here than in terraform
+#wget $(wget -q -O- https://bosh.io/docs/install-bosh-init.html | grep "bosh-init for Linux (amd64)" | awk -F "\'" '{print$2}') -O /sbin/bosh-init
+#chmod 755 /sbin/bosh-init
+#wget "https://cli.run.pivotal.io/stable?release=debian64&source=github" -O /tmp/cf-cli.deb
+
 
 # Send Manifest & latest bosh-init up to Bastion
 gcloud compute copy-files ${bosh_manifest} ${gcp_terraform_prefix}-bosh-bastion:/home/bosh --zone ${gcp_zone_1} --quiet
-gcloud compute copy-files /sbin/bosh-init ${gcp_terraform_prefix}-bosh-bastion:/home/bosh --zone ${gcp_zone_1} --quiet
+#gcloud compute copy-files /sbin/bosh-init ${gcp_terraform_prefix}-bosh-bastion:/home/bosh --zone ${gcp_zone_1} --quiet
+#gcloud compute copy-files /tmp/cf-cli.deb ${gcp_terraform_prefix}-bosh-bastion:/home/bosh --zone ${gcp_zone_1} --quiet
+
 # Start bosh-init deploy on Bastion
 gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
 --command "if [ -f /home/bosh/bosh-init-state.json ]; then rm -rf /home/bosh/bosh-init-state.json ; fi" \
