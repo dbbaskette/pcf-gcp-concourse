@@ -1,7 +1,9 @@
 #!/bin/bash
 set -e
 
-#################### GCP Auth Begin ##########################
+#############################################################
+#################### GCP Auth ###############################
+#############################################################
 echo $gcp_svc_acct_key > /tmp/blah
 gcloud auth activate-service-account --key-file /tmp/blah
 rm -rf /tmp/blah
@@ -9,9 +11,10 @@ rm -rf /tmp/blah
 gcloud config set project $gcp_proj_id
 gcloud config set compute/region $gcp_region
 
-
-#################### Gen BOSH Manifest ######################
-#### Edit Bosh Manifest & Deploy BOSH, at seom point in future we can change to ENAML
+#############################################################
+#################### Gen Bosh Manifest ######################
+#############################################################
+# Edit Bosh Manifest & Deploy BOSH, at seom point in future we can change to ENAML
 echo "Updating BOSH Manifest template $bosh_manifest_template ..."
 if [ ! -f $bosh_manifest_template ]; then
     echo "Error: Bosh Manifest $bosh_manifest_template not found !!!"
@@ -37,8 +40,9 @@ echo "Will use the following manifest:"
 cat $bosh_manifest
 
 
-
+#############################################################
 #################### Deploy Bosh via Bastion ################
+#############################################################
 echo "Deploying BOSH ..."
 
 # Send manifest up to Bastion
@@ -49,7 +53,8 @@ gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
 --command "while [ ! -f /sbin/bosh-init ]; do echo \"metadata_startup_script has not deployed bosh-init yet...\"; sleep 10 ; done && echo \"Found bosh-init...\"" \
 --zone ${gcp_zone_1}
 
-# Test if we are running deploy again on bastion thats already deployed, occurs when re-running failed stpe in pipeline
+# Test if we are running deploy again on bastion thats already deployed & wipe the json state to deploy new bosh (assumes old one is wiped manual)
+# Occurs when re-running failed deply-bosh-1 step in pipeline
 gcloud compute ssh bosh@${gcp_terraform_prefix}-bosh-bastion \
 --command "if [ -f /home/bosh/bosh-init-state.json ]; then rm -rf /home/bosh/bosh-init-state.json ; fi" \
 --zone ${gcp_zone_1}
