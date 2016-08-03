@@ -40,25 +40,21 @@ cat $bosh_manifest
 
 #################### Deploy Bosh via Bastion ################
 echo "Deploying BOSH ..."
-echo "Sleeping 2 minutes while Bastion runs metadata_startup_script..."
-sleep 120
 
-# Getting latest bosh-init & CF CLI,  easier to do here & push up to bastion to do here than in terraform
-#wget $(wget -q -O- https://bosh.io/docs/install-bosh-init.html | grep "bosh-init for Linux (amd64)" | awk -F "\'" '{print$2}') -O /sbin/bosh-init
-#chmod 755 /sbin/bosh-init
-#wget "https://cli.run.pivotal.io/stable?release=debian64&source=github" -O /tmp/cf-cli.deb
-
-
-# Send Manifest & latest bosh-init up to Bastion
+# Send manifest up to Bastion
 gcloud compute copy-files ${bosh_manifest} ${gcp_terraform_prefix}-bosh-bastion:/home/bosh --zone ${gcp_zone_1} --quiet
-#gcloud compute copy-files /sbin/bosh-init ${gcp_terraform_prefix}-bosh-bastion:/home/bosh --zone ${gcp_zone_1} --quiet
-#gcloud compute copy-files /tmp/cf-cli.deb ${gcp_terraform_prefix}-bosh-bastion:/home/bosh --zone ${gcp_zone_1} --quiet
 
-# Start bosh-init deploy on Bastion
+# Start bosh-init deploy on Bastion, but first check for bosh-init to exist since metadata_startup_script is slow
+gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
+--command "while [ ! -f /sbin/bosh-init ]; do echo \"metadata_startup_script has not deployed bosh-init yet...\"; sleep 10 ; done && echo \"Found bosh-init...\"" \
+--zone ${gcp_zone_1}
+
+# Test if we are running deploy again on bastion thats already deployed, occurs when re-running failed stpe in pipeline
 gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
 --command "if [ -f /home/bosh/bosh-init-state.json ]; then rm -rf /home/bosh/bosh-init-state.json ; fi" \
 --zone ${gcp_zone_1}
 
+# Run bosh-init on bastion
 gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
 --command "cd /home/bosh && /home/bosh/bosh-init --version && /home/bosh/bosh-init deploy /home/bosh/bosh-init.yml" \
 --zone ${gcp_zone_1}
@@ -71,6 +67,7 @@ gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
 --zone ${gcp_zone_1}
 
 #Login to BOSH
+echo "Logging into director with:  bosh -n login ${bosh_director_user} ${bosh_director_password}"
 gcloud compute ssh ${gcp_terraform_prefix}-bosh-bastion \
 --command "bosh -n login ${bosh_director_user} ${bosh_director_password}" \
 --zone ${gcp_zone_1}
