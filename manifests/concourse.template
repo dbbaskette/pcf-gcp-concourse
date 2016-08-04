@@ -45,7 +45,7 @@ instance_groups:
 
 - name: db
   instances: 1
-  vm_type: concourse-public
+  vm_type: medium
   stemcell: trusty
   persistent_disk_type: large
   azs: [z1]
@@ -64,7 +64,7 @@ instance_groups:
 
 - name: worker
   instances: 2
-  vm_type: concourse-public
+  vm_type: medium
   stemcell: trusty
   azs: [z1]
   networks: [{name: concourse}]
