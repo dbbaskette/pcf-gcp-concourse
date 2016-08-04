@@ -130,7 +130,5 @@ for x in $(fn_gcp_ssh "ls /home/bosh/concourse-releases" bosh | grep -v 'gcloud 
   fn_gcp_ssh "bosh upload release /home/bosh/concourse-releases/$x" bosh
 done
 
-fn_gcp_ssh "for i in $(ls ~/concourse-releases);do bosh upload release ~/concourse-releases/$i; done" bosh
-echo "Deploying Concourse..."
 fn_gcp_ssh "bosh deployment $concourse_manifest_run"
 fn_gcp_ssh "bosh -n deploy"
