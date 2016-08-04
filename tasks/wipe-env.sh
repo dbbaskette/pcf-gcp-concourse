@@ -37,7 +37,7 @@ for y in ${ZONE[@]}; do
 	echo "zone=$y"
 	echo "----------------------------------------------------------------------------------------------"
   #for i in $(gcloud compute instances list --filter "tags.items[0]~${gcp_terraform_prefix}-instance OR tags.items[1]~${gcp_terraform_prefix}-instance OR tags.items[2]~${gcp_terraform_prefix}-instance" | grep $y | awk '{print $1}'); do
-  MY_CMD="gcloud compute instances list --flatten tags.items[] --format json | jq '.[] | select ((.tags.items == \"$gcp_terraform_prefix-instance\" ) and (.zone == \"$y\")) | .name'"
+  MY_CMD="gcloud compute instances list --flatten tags.items[] --format json | jq '.[] | select ((.tags.items == \"$gcp_terraform_prefix-instance\" ) and (.zone == \"$y\")) | .name' | tr -d '\"'"
   echo $MY_CMD
   for i in $(eval $MY_CMD); do
   	 echo "Deleting Instance:$i ..."
