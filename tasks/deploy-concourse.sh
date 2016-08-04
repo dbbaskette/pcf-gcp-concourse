@@ -53,7 +53,7 @@ fn_gcp_ssh "chmod 755 /sbin/omg-cli" root
 OMG_PRODUCT_CC="https://github.com$(wget -q -O- https://github.com/enaml-ops/omg-product-bundle/releases/latest | grep concourse-plugin-linux | awk -F '"' '{print$2}')"
 echo "Installing OMG-CLI product $OMG_PRODUCT_CC to Bastion ..."
 CC_ENAML_PLUGIN_FILE_NAME=$(echo $OMG_PRODUCT_CC | awk -F "/" '{print$NF}')
-fn_gcp_ssh "if [ .plugins/product/concourse-plugin-linux ]; then rm .plugins/product/concourse-plugin-linux; fi"
+fn_gcp_ssh "if [ -f .plugins/product/concourse-plugin-linux ]; then rm .plugins/product/concourse-plugin-linux; fi"
 fn_gcp_ssh "wget $OMG_PRODUCT_CC -O ~/$CC_ENAML_PLUGIN_FILE_NAME"
 fn_gcp_ssh "omg-cli register-plugin --type product --pluginpath ~/$CC_ENAML_PLUGIN_FILE_NAME"
 
