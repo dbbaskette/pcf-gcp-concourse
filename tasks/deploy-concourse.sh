@@ -85,4 +85,6 @@ concourse-plugin-linux \
 --database-storage-type large \
 --stemcell-ver 3262.2"
 
-fn_gcp_ssh "$OMG_CC_DEPLOY_CMD"
+fn_gcp_ssh "$OMG_CC_DEPLOY_CMD > /home/bosh/concourse.yml"
+
+#cat /tmp/blah.yml | grep -v "  sha" | grep -v "  url" | perl -pe '/\s\sversion.*$/ && s/version:.*/\s\sversion: latest/'
