@@ -109,7 +109,7 @@ BOSH_UUID=$(fn_gcp_ssh "bosh status" | grep UUID | awk '{print$2}')
 
 perl -pi -e "s/<<BOSH_UUID>>/$BOSH_UUID/g" $concourse_manifest
 perl -pi -e "s/<<concourse_static_ips_web>>/$concourse_static_ips_web/g" $concourse_manifest
-perl -pi -e "s/<<concourse_external_url>>/$concourse_external_url/g" $concourse_manifest
+perl -pi -e "s~<<concourse_external_url>>~$concourse_external_url~g" $concourse_manifest
 perl -pi -e "s/<<concourse_basic_auth_username>>/$concourse_basic_auth_username/g" $concourse_manifest
 perl -pi -e "s/<<concourse_basic_auth_password>>/$concourse_basic_auth_password/g" $concourse_manifest
 perl -pi -e "s/<<concourse_static_ips_db>>/$concourse_static_ips_db/g" $concourse_manifest
