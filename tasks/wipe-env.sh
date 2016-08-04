@@ -90,7 +90,7 @@ echo "--------------------------------------------------------------------------
   for x in $(gcloud compute images list | grep $gcp_proj_id | grep stemcell | awk '{print $1}'); do
 
   	 echo "Deleting Image:$x ..."
-  	 echo gcloud compute images delete $x --quiet
+  	 gcloud compute images delete $x --quiet
 
   done
 echo "=============================================================================================="
