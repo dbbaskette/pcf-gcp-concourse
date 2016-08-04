@@ -61,36 +61,71 @@ fn_gcp_ssh "omg-cli register-plugin --type product --pluginpath ~/$CC_ENAML_PLUG
 ########## generate manifest for Concourse w/ ENAML  ########
 #############################################################
 
-export OMG_CC_DEPLOY_CMD="omg-cli deploy-product \
---bosh-url https://10.1.0.4 \
---bosh-port 25555 \
---bosh-user admin \
---bosh-pass gcpblah \
---ssl-ignore \
---print-manifest \
-concourse-plugin-linux \
---web-vm-type concourse-public \
---worker-vm-type concourse-public \
---database-vm-type concourse-public \
---network-name concourse \
---url my.concourse.com \
---username concourse \
---password concourse \
---web-instances 1 \
---web-azs z1 \
---worker-azs z1 \
---database-azs z1 \
---bosh-stemcell-alias ubuntu-trusty \
---postgresql-db-pwd secret \
---database-storage-type large \
---stemcell-ver latest"
+#export OMG_CC_DEPLOY_CMD="omg-cli deploy-product \
+#--bosh-url https://10.1.0.4 \
+#--bosh-port 25555 \
+#--bosh-user admin \
+#--bosh-pass gcpblah \
+#--ssl-ignore \
+#--print-manifest \
+#concourse-plugin-linux \
+#--web-vm-type concourse-public \
+#--worker-vm-type concourse-public \
+#--database-vm-type concourse-public \
+#--network-name concourse \
+#--url my.concourse.com \
+#--username concourse \
+#--password concourse \
+#--web-instances 1 \
+#--web-azs z1 \
+#--worker-azs z1 \
+#--database-azs z1 \
+#--bosh-stemcell-alias ubuntu-trusty \
+#--postgresql-db-pwd secret \
+#--database-storage-type large \
+#--stemcell-ver latest"
 
-fn_gcp_ssh "$OMG_CC_DEPLOY_CMD > /home/bosh/concourse.yml"
+#fn_gcp_ssh "$OMG_CC_DEPLOY_CMD > /home/bosh/concourse.yml"
+#############################################################
+####### wont use enaml omg-cli just yet #####################
+####### Need a new Plugin for concourse 1.6.x ###############
+#############################################################
 
-#cat /tmp/blah.yml | grep -v "  sha" | grep -v "  url" | perl -pe '/\s\sversion.*$/ && s/version:.*/\s\sversion: latest/'
-fn_gcp_ssh "perl -pi -e '/\s\sversion.*$/ && s/version:.*/version: latest/' /home/bosh/concourse.yml"
-fn_gcp_ssh "cat /home/bosh/concourse.yml | grep -v '  sha' | grep -v '  url' > /home/bosh/concourse-scrub.yml"
+
+#############################################################
+########## generate manifest for Concourse w/ BASH  #########
+#############################################################
+# Edit cloud-config & Deploy BOSH, at some point in future we can change to ENAML
+echo "Updating Concourse template $concourse_manifest_template ..."
+if [ ! -f $concourse_manifest_template ]; then
+    echo "Error: Concourse template $concourse_manifest_template not found !!!"
+    exit 1
+fi
+
+concourse_manifest="/tmp/concourse.yml"
+cp $concourse_manifest_template $concourse_manifest
+
+BOSH_UUID=$(fn_gcp_ssh "bosh status" | grep UUID | awk '{print$2}')
+
+perl -pi -e "s/<<BOSH_UUID>>/$BOSH_UUID/g" $concourse_manifest
+perl -pi -e "s/<<concourse_static_ips_web>>/$concourse_static_ips_web/g" $concourse_manifest
+perl -pi -e "s/<<concourse_external_url>>/$concourse_external_url/g" $concourse_manifest
+perl -pi -e "s/<<concourse_basic_auth_username>>/$concourse_basic_auth_username/g" $concourse_manifest
+perl -pi -e "s/<<concourse_basic_auth_password>>/$concourse_basic_auth_password/g" $concourse_manifest
+perl -pi -e "s/<<concourse_static_ips_db>>/$concourse_static_ips_db/g" $concourse_manifest
+perl -pi -e "s/<<gcp_terraform_prefix>>/$gcp_terraform_prefix/g" $concourse_manifest
+
 echo "Will Deploy Concourse using the following mainfest...."
-fn_gcp_ssh "cat /home/bosh/concourse-scrub.yml"
-echo "Uploading Releases..."
-fn_gcp_ssh "for i in $(ls concourse-releases);do bosh upload release concourse-releases/$i; done"
+cat $concourse_manifest
+concourse_manifest_run="/home/bosh/concourse.yml"
+fn_gcp_scp_up $concourse_manifest $concourse_manifest_run
+
+
+#############################################################
+########## Deploying Concourse                       ########
+#############################################################
+echo "Uploading Concourse Releases..."
+fn_gcp_ssh "for i in $(ls /home/bosh/concourse-releases);do bosh upload release /home/bosh/concourse-releases/$i; done"
+echo "Deploying Concourse..."
+fn_gcp_ssh "bosh deployment $concourse_manifest_run"
+fn_gcp_ssh "bosh -n deploy"

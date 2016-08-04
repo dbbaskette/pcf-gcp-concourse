@@ -1,0 +1,90 @@
+---
+name: <<gcp_terraform_prefix>>-concourse
+director_uuid: <<BOSH_UUID>>
+
+releases:
+- name: concourse
+  version: latest
+- name: garden-runc
+  version: latest
+
+stemcells:
+- alias: trusty
+  os: ubuntu-trusty
+  version: latest
+
+instance_groups:
+- name: web
+  instances: 1
+  vm_type: concourse-public
+  stemcell: trusty
+  azs: [z1]
+  networks:
+  - name: concourse
+    static_ips: <<concourse_static_ips_web>>
+  jobs:
+  - name: atc
+    release: concourse
+    properties:
+      # replace with your CI's externally reachable URL, e.g. https://ci.foo.com
+      external_url: <<concourse_external_url>>
+
+      # replace with username/password, or configure GitHub auth
+      basic_auth_username: <<concourse_basic_auth_username>>
+      basic_auth_password: <<concourse_basic_auth_password>>
+      # tls_cert: |
+      #  -----BEGIN CERTIFICATE-----
+      #  -----END CERTIFICATE-----
+      # tls_key: |
+      #  -----BEGIN PRIVATE KEY-----
+      #  -----END PRIVATE KEY-----
+      postgresql_database: &atc_db atc
+  - name: tsa
+    release: concourse
+    properties: {}
+
+- name: db
+  instances: 1
+  vm_type: concourse-public
+  stemcell: trusty
+  persistent_disk_type: large
+  azs: [z1]
+  networks:
+  - name: concourse
+    static_ips: <<concourse_static_ips_db>>
+  jobs:
+  - name: postgresql
+    release: concourse
+    properties:
+      databases:
+      - name: *atc_db
+        # make up a role and password
+        role: dba
+        password: atcdba
+
+- name: worker
+  instances: 2
+  vm_type: concourse-public
+  stemcell: trusty
+  azs: [z1]
+  networks: [{name: concourse}]
+  jobs:
+  - name: groundcrew
+    release: concourse
+    properties: {}
+  - name: baggageclaim
+    release: concourse
+    properties: {}
+  - name: garden
+    release: garden-runc
+    properties:
+      garden:
+        listen_network: tcp
+        listen_address: 0.0.0.0:7777
+
+update:
+  canaries: 1
+  max_in_flight: 1
+  serial: false
+  canary_watch_time: 1000-60000
+  update_watch_time: 1000-60000

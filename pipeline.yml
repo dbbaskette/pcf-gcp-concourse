@@ -121,7 +121,7 @@ jobs:
         gcp_terraform_subnet_pcf_zone2: {{gcp_terraform_subnet_pcf_zone2}}
         gcp_terraform_subnet_pcf_zone2_gateway: {{gcp_terraform_subnet_pcf_zone2_gateway}}
         bosh_manifest_template: {{bosh_manifest_template}}
-        bosh_cloud_config_temaplate: {{bosh_cloud_config_temaplate}}
+        bosh_cloud_config_template: {{bosh_cloud_config_template}}
         bosh_director_user: {{bosh_director_user}}
         bosh_director_password: {{bosh_director_password}}
         bosh_subnet_static:
@@ -136,6 +136,8 @@ jobs:
         concourse_subnet_static:
         - {{concourse_subnet_static_range_1}}
         - {{concourse_subnet_static_range_2}}
+        - {{concourse_subnet_static_range_3}}
+        - {{concourse_subnet_static_range_4}}
         concourse_subnet_reserved:
         - {{concourse_subnet_reserved_range_1}}
         - {{concourse_subnet_reserved_range_2}}
@@ -193,3 +195,11 @@ jobs:
         gcp_terraform_subnet_concourse_gateway: {{gcp_terraform_subnet_concourse_gateway}}
         bosh_director_user: {{bosh_director_user}}
         bosh_director_password: {{bosh_director_password}}
+        concourse_manifest_template: {{concourse_manifest_template}}
+        concourse_static_ips_web:
+        -  {{concourse_subnet_static_range_1}}
+        concourse_static_ips_db:
+        -  {{concourse_subnet_static_range_2}}
+        concourse_external_url: {{concourse_external_url}}
+        concourse_basic_auth_username: {{concourse_basic_auth_username}}
+        concourse_basic_auth_password: {{concourse_basic_auth_password}}

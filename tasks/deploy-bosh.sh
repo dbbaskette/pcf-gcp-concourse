@@ -82,21 +82,22 @@ fn_gcp_ssh "bosh -n target https://${gcp_terraform_subnet_bosh_static}"
 #Login to BOSH
 echo "Logging into director with:  bosh -n login ${bosh_director_user} ${bosh_director_password}"
 fn_gcp_ssh "bosh -n login ${bosh_director_user} ${bosh_director_password}"
-#Get BOSH Status
+#Get BOSH Status && UUID
 fn_gcp_ssh "bosh -n status"
+
 
 #############################################################
 #################### Gen Cloud Config  ######################
 #############################################################
 # Edit cloud-config & Deploy BOSH, at some point in future we can change to ENAML
-echo "Updating cloud-config template $bosh_cloud_config_temaplate ..."
-if [ ! -f $bosh_cloud_config_temaplate ]; then
-    echo "Error: cloud-config $bosh_cloud_config_temaplate not found !!!"
+echo "Updating cloud-config template $bosh_cloud_config_template ..."
+if [ ! -f $bosh_cloud_config_template ]; then
+    echo "Error: cloud-config $bosh_cloud_config_template not found !!!"
     exit 1
 fi
 
 cloud_config="/tmp/cloud_config.yml"
-cp $bosh_cloud_config_temaplate $cloud_config
+cp $bosh_cloud_config_template $cloud_config
 
 #Alt regex delim ~ for subnet cidr variables
 perl -pi -e "s~<<gcp_terraform_subnet_bosh>>~$gcp_terraform_subnet_bosh~g" $cloud_config
