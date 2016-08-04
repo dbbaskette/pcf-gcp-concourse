@@ -1,5 +1,5 @@
 #!/bin/bash
-#set -e
+set -e
 echo "Executing Terraform ...."
 
 export PATH=/opt/terraform/terraform:$PATH
