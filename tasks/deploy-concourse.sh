@@ -90,3 +90,7 @@ fn_gcp_ssh "$OMG_CC_DEPLOY_CMD > /home/bosh/concourse.yml"
 #cat /tmp/blah.yml | grep -v "  sha" | grep -v "  url" | perl -pe '/\s\sversion.*$/ && s/version:.*/\s\sversion: latest/'
 fn_gcp_ssh "perl -pi -e '/\s\sversion.*$/ && s/version:.*/version: latest/' /home/bosh/concourse.yml"
 fn_gcp_ssh "cat /home/bosh/concourse.yml | grep -v '  sha' | grep -v '  url' > /home/bosh/concourse-scrub.yml"
+echo "Will Deploy Concourse using the following mainfest...."
+fn_gcp_ssh "cat /home/bosh/concourse-scrub.yml"
+echo "Uploading Releases..."
+fn_gcp_ssh "for i in $(ls concourse-releases);do bosh upload release concourse-releases/$i; done"
