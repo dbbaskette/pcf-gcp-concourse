@@ -12,16 +12,15 @@ if [ $arg_wipe == "wipe" ];
 fi
 
 
-#################### GCP Auth ##########################
-## Stopid Reqs ...
-## Create a svc account & enable the API by hand
+#############################################################
+#################### GCP Auth  & functions ##################
+#############################################################
 echo $gcp_svc_acct_key > /tmp/blah
 gcloud auth activate-service-account --key-file /tmp/blah
 rm -rf /tmp/blah
 
 gcloud config set project $gcp_proj_id
 gcloud config set compute/region $gcp_region
-
 
 
 # Wipe all GCP Instances for given prefix within Zone ##MG Todo: Serial processing is slow,  look for a quicker way to wipe Instances

@@ -53,33 +53,36 @@ fn_gcp_ssh "chmod 755 /sbin/omg-cli" root
 OMG_PRODUCT_CC="https://github.com$(wget -q -O- https://github.com/enaml-ops/omg-product-bundle/releases/latest | grep concourse-plugin-linux | awk -F '"' '{print$2}')"
 echo "Installing OMG-CLI product $OMG_PRODUCT_CC to Bastion ..."
 CC_ENAML_PLUGIN_FILE_NAME=$(echo $OMG_PRODUCT_CC | awk -F "/" '{print$NF}')
+fn_gcp_ssh "if [ .plugins/product/concourse-plugin-linux ]; then rm .plugins/product/concourse-plugin-linux; fi"
 fn_gcp_ssh "wget $OMG_PRODUCT_CC -O ~/$CC_ENAML_PLUGIN_FILE_NAME"
 fn_gcp_ssh "omg-cli register-plugin --type product --pluginpath ~/$CC_ENAML_PLUGIN_FILE_NAME"
 
 #############################################################
 ########## generate manifest for Concourse w/ ENAML  ########
 #############################################################
-export OMG_CC_DEPLOY_CMD="omg-cli deploy-cloudconfig \
---bosh-url https://${gcp_terraform_subnet_bosh_static} \
+
+export OMG_CC_DEPLOY_CMD="omg-cli deploy-product \
+--bosh-url https://10.1.0.4 \
 --bosh-port 25555 \
---bosh-user ${bosh_director_user} \
---bosh-pass ${bosh_director_password} \
+--bosh-user admin \
+--bosh-pass gcpblah \
 --ssl-ignore \
 --print-manifest \
-$CC_ENAML_PLUGIN_FILE_NAME \
---web-vm-type small \
---worker-vm-type small \
---database-vm-type small \
---network-name private \
+concourse-plugin-linux \
+--web-vm-type concourse-public \
+--worker-vm-type concourse-public \
+--database-vm-type concourse-public \
+--network-name concourse \
 --url my.concourse.com \
 --username concourse \
 --password concourse \
 --web-instances 1 \
---web-azs us-east-1c \
---worker-azs us-east-1c \
---database-azs us-east-1c \
---bosh-stemcell-alias trusty \
+--web-azs z1 \
+--worker-azs z1 \
+--database-azs z1 \
+--bosh-stemcell-alias ubuntu-trusty \
 --postgresql-db-pwd secret \
---database-storage-type medium"
+--database-storage-type large \
+--stemcell-ver 3262.2"
 
-#fn_gcp_ssh "$OMG_CC_DEPLOY_CMD"
+fn_gcp_ssh "$OMG_CC_DEPLOY_CMD"
