@@ -39,10 +39,10 @@ bosh_gcp_cpi_release=latest
 echo "Getting sha for bosh release:${bosh_release} ..."
 if [[ ${bosh_release} -eq "latest" ]]; then
      BOSH_SHA1=$(wget -q -O- http://bosh.io/releases/github.com/cloudfoundry/bosh?latest | grep sha | head -n 1 | awk '{print$2}')
-     export BOSH_URL=$(wget -q -O- http://bosh.io/releases/github.com/cloudfoundry/bosh?latest | grep url | head -n 1 | awk '{print$2}')
+     BOSH_URL=$(wget -q -O- http://bosh.io/releases/github.com/cloudfoundry/bosh?latest | grep url | head -n 1 | awk '{print$2}')
 else
      BOSH_SHA1=$(wget -q -O- http://bosh.io/releases/github.com/cloudfoundry/bosh?version=${bosh_release} | grep sha | head -n 1 | awk '{print$2}')
-     export BOSH_URL=$(wget -q -O- http://bosh.io/releases/github.com/cloudfoundry/bosh?version=${bosh_release}| grep url | head -n 1 | awk '{print$2}')
+     BOSH_URL=$(wget -q -O- http://bosh.io/releases/github.com/cloudfoundry/bosh?version=${bosh_release}| grep url | head -n 1 | awk '{print$2}')
 fi
 
 if [[ ! $(echo $BOSH_SHA1 | perl -pe 's/^[0-9a-f]{40}$/true/g') -eq "true" ]]; then
@@ -108,7 +108,7 @@ perl -pi -e "s/<<gcp_zone_1>>/$gcp_zone_1/g" $bosh_manifest
 perl -pi -e "s/<<bosh_director_user>>/$bosh_director_user/g" $bosh_manifest
 perl -pi -e "s/<<bosh_director_password>>/$bosh_director_password/g" $bosh_manifest
 echo "Debug 1"
-perl -pi -e "s/<<BOSH_URL>>/$BOSH_URL/g" $bosh_manifest
+perl -pi -e "s/<<BOSH_URL>>/${BOSH_URL}/g" $bosh_manifest
 echo "Debug 2"
 perl -pi -e "s/<<BOSH_SHA1>>/$BOSH_SHA1/g" $bosh_manifest
 echo "Debug 3"
