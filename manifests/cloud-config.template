@@ -81,7 +81,6 @@ networks:
       network_name: <<gcp_terraform_prefix>>-vnet
       subnetwork_name: <<gcp_terraform_prefix>>-subnet-bosh-<<gcp_region>>
       tags:
-      - <<gcp_terraform_prefix>>-instance
       - nat-traverse
       - no-ip
 - name: concourse
@@ -97,7 +96,21 @@ networks:
       network_name: <<gcp_terraform_prefix>>-vnet
       subnetwork_name: <<gcp_terraform_prefix>>-subnet-concourse-<<gcp_zone_1>>
       tags:
-      - <<gcp_terraform_prefix>>-instance
+      - nat-traverse
+      - no-ip
+- name: vault
+  type: manual
+  subnets:
+  - range: <<gcp_terraform_subnet_vault>>
+    gateway: <<gcp_terraform_subnet_vault_gateway>>
+    az: z1
+    static: <<vault_subnet_static>>
+    reserved: <<vault_subnet_reserved>>
+    dns: <<vault_subnet_DNS>>
+    cloud_properties:
+      network_name: <<gcp_terraform_prefix>>-vnet
+      subnetwork_name: <<gcp_terraform_prefix>>-subnet-concourse-<<gcp_zone_1>>
+      tags:
       - nat-traverse
       - no-ip
 - name: pcf-z1
@@ -113,7 +126,6 @@ networks:
       network_name: <<gcp_terraform_prefix>>-vnet
       subnetwork_name: <<gcp_terraform_prefix>>-subnet-pcf-<<gcp_zone_1>>
       tags:
-      - <<gcp_terraform_prefix>>-instance
       - nat-traverse
       - no-ip
 - name: pcf-z2
@@ -129,7 +141,6 @@ networks:
       network_name: <<gcp_terraform_prefix>>-vnet
       subnetwork_name: <<gcp_terraform_prefix>>-subnet-pcf-<<gcp_zone_2>>
       tags:
-      - <<gcp_terraform_prefix>>-instance
       - nat-traverse
       - no-ip
 - name: public

@@ -148,6 +148,9 @@ jobs:
         concourse_subnet_DNS:
         - {{concourse_subnet_DNS_range_1}}
         - {{concourse_subnet_DNS_range_2}}
+        vault_subnet_static: {{vault_subnet_static}}
+        vault_subnet_reserved: {{vault_subnet_reserved}}
+        vault_subnet_DNS: {{vault_subnet_DNS}}
         pcf_subnet_zone1_static:
         - {{pcf_subnet_zone1_static_range_1}}
         pcf_subnet_zone1_reserved:

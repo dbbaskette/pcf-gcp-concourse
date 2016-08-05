@@ -194,6 +194,9 @@ perl -pi -e "s/<<bosh_subnet_DNS>>/$bosh_subnet_DNS/g" $cloud_config
 perl -pi -e "s/<<concourse_subnet_static>>/$concourse_subnet_static/g" $cloud_config
 perl -pi -e "s/<<concourse_subnet_reserved>>/$concourse_subnet_reserved/g" $cloud_config
 perl -pi -e "s/<<concourse_subnet_DNS>>/$concourse_subnet_DNS/g" $cloud_config
+perl -pi -e "s/<<vault_subnet_static>>/$vault_subnet_static/g" $cloud_config
+perl -pi -e "s/<<vault_subnet_reserved>>/$vault_subnet_reserved/g" $cloud_config
+perl -pi -e "s/<<vault_subnet_DNS>>/$vault_subnet_DNS/g" $cloud_config
 perl -pi -e "s/<<pcf_subnet_zone1_static>>/$pcf_subnet_zone1_static/g" $cloud_config
 perl -pi -e "s/<<pcf_subnet_zone1_reserved>>/$pcf_subnet_zone1_reserved/g" $cloud_config
 perl -pi -e "s/<<pcf_subnet_zone1_DNS>>/$pcf_subnet_zone1_DNS/g" $cloud_config
