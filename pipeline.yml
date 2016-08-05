@@ -12,7 +12,7 @@ resources:
   type: git
   source:
     uri: git@github.com:pivotal-customer0/pcf-gcp-concourse.git
-    branch: mglynn-dev
+    branch: master
     private_key: {{githubsshkey}}
 
 - name: bosh-google-cpi-release
@@ -42,9 +42,9 @@ jobs:
   plan:
   - aggregate:
     - get: bosh-google-cpi-release
-      trigger: false
+      trigger: true
     - get: bosh-release
-      trigger: false
+      trigger: true
     - get: pcf-gcp-concourse
       trigger: false
     - get: gcp-run-id
