@@ -50,7 +50,7 @@ fn_gcp_ssh "omg-cli register-plugin --type product --pluginpath ~/$CC_ENAML_PLUG
 ########## Deploy Vault     w/ ENAML  #######################
 #############################################################
 echo "Using ENAML goodness to deploy Vault ..."
-export OMG_CC_DEPLOY_CMD="omg-cli deploy-product \
+export OMG_VAULT_MANIFEST_CMD="omg-cli deploy-product \
 --bosh-url https://$gcp_terraform_subnet_bosh_static \
 --bosh-port 25555 \
 --bosh-user $bosh_director_user \
@@ -58,7 +58,20 @@ export OMG_CC_DEPLOY_CMD="omg-cli deploy-product \
 --ssl-ignore \
 --print-manifest \
 vault-plugin-linux \
-# \
-"
+--ip $vault_subnet_static \
+--az z1 \
+--network vault \
+--vm-type medium \
+--disk-type small \
+--stemcell-ver latest \
+--stemcell-name ubuntu-trusty"
 
-fn_gcp_ssh "$OMG_CC_DEPLOY_CMD" bosh
+echo "----------------------------------------------------------------------------------------------"
+echo "----------------------------------------------------------------------------------------------"
+echo "ENAML will deploy Vault with the following manifest:"
+fn_gcp_ssh "$OMG_VAULT_MANIFEST_CMD" bosh
+echo "----------------------------------------------------------------------------------------------"
+echo "----------------------------------------------------------------------------------------------"
+
+OMG_VAULT_DEPLOY_CMD=$(echo $OMG_VAULT_MANIFEST_CMD | perl -pe 's/--print-manifest//g')
+fn_gcp_ssh "$OMG_VAULT_DEPLOY_CMD" bosh

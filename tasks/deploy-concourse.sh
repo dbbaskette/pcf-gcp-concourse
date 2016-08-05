@@ -115,8 +115,12 @@ perl -pi -e "s/<<concourse_basic_auth_password>>/$concourse_basic_auth_password/
 perl -pi -e "s/<<concourse_static_ips_db>>/$concourse_static_ips_db/g" $concourse_manifest
 perl -pi -e "s/<<gcp_terraform_prefix>>/$gcp_terraform_prefix/g" $concourse_manifest
 
+echo "----------------------------------------------------------------------------------------------"
+echo "----------------------------------------------------------------------------------------------"
 echo "Will Deploy Concourse using the following mainfest...."
 cat $concourse_manifest
+echo "----------------------------------------------------------------------------------------------"
+echo "----------------------------------------------------------------------------------------------"
 concourse_manifest_run="/home/bosh/concourse.yml"
 fn_gcp_scp_up $concourse_manifest $concourse_manifest_run
 

@@ -254,3 +254,7 @@ jobs:
         gcp_zone_2: {{gcp_zone_2}}
         gcp_svc_acct_key: {{gcp_svc_acct_key}}
         gcp_terraform_prefix: {{gcp_terraform_prefix}}
+        gcp_terraform_subnet_bosh_static: {{gcp_terraform_subnet_bosh_static}}
+        bosh_director_user: {{bosh_director_user}}
+        bosh_director_password: {{bosh_director_password}}
+        vault_subnet_static: {{vault_subnet_static}}
