@@ -108,7 +108,7 @@ perl -pi -e "s/<<gcp_zone_1>>/$gcp_zone_1/g" $bosh_manifest
 perl -pi -e "s/<<bosh_director_user>>/$bosh_director_user/g" $bosh_manifest
 perl -pi -e "s/<<bosh_director_password>>/$bosh_director_password/g" $bosh_manifest
 echo "Debug 1"
-perl -pi -e "s/<<BOSH_URL>>/${BOSH_URL}/g" $bosh_manifest
+perl -pi -e "s/<<BOSH_URL>>/blah/g" $bosh_manifest
 echo "Debug 2"
 perl -pi -e "s/<<BOSH_SHA1>>/$BOSH_SHA1/g" $bosh_manifest
 echo "Debug 3"
