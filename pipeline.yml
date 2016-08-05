@@ -121,6 +121,9 @@ jobs:
         gcp_terraform_subnet_pcf_zone1_gateway: {{gcp_terraform_subnet_pcf_zone1_gateway}}
         gcp_terraform_subnet_pcf_zone2: {{gcp_terraform_subnet_pcf_zone2}}
         gcp_terraform_subnet_pcf_zone2_gateway: {{gcp_terraform_subnet_pcf_zone2_gateway}}
+        bosh_stemcell_version: {{bosh_stemcell_version}}
+        bosh_release: {{bosh_release}}
+        bosh_gcp_cpi_release: {{bosh_gcp_cpi_release}}
         bosh_manifest_template: {{bosh_manifest_template}}
         bosh_cloud_config_template: {{bosh_cloud_config_template}}
         bosh_director_user: {{bosh_director_user}}
@@ -161,7 +164,6 @@ jobs:
         pcf_subnet_zone2_DNS:
         - {{pcf_subnet_zone2_DNS_range_1}}
         - {{pcf_subnet_zone2_DNS_range_2}}
-        stemcell_version: {{stemcell_version}}
 
 - name: Deploy-Concourse-3
   serial: true

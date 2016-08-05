@@ -31,6 +31,53 @@ function fn_gcp_ssh {
 }
 
 #############################################################
+####### Detect bosh, CPI, stemcell  versions ################
+#############################################################
+# Bosh Release
+bosh_release=latest
+bosh_gcp_cpi_release=latest
+echo "Getting sha for bosh release:${bosh_release} ..."
+if [[ ${bosh_release} -eq "latest" ]]; then
+     BOSH_SHA1=$(wget -q -O- http://bosh.io/releases/github.com/cloudfoundry/bosh?latest | grep sha | head -n 1 | awk '{print$2}')
+     BOSH_URL=$(wget -q -O- http://bosh.io/releases/github.com/cloudfoundry/bosh?latest | grep url | head -n 1 | awk '{print$2}')
+else
+     BOSH_SHA1=$(wget -q -O- http://bosh.io/releases/github.com/cloudfoundry/bosh?version=${bosh_release} | grep sha | head -n 1 | awk '{print$2}')
+     BOSH_URL=$(wget -q -O- http://bosh.io/releases/github.com/cloudfoundry/bosh?version=${bosh_release}| grep url | head -n 1 | awk '{print$2}')
+fi
+
+if [[ ! $(echo $BOSH_SHA1 | perl -pe 's/^[0-9a-f]{40}$/true/g') -eq "true" ]]; then
+    echo "ERROR: wget did dot return a valid SHA1 for bosh release..."
+    echo "ERROR: I got :$BOSH_SHA1"
+    exit 1
+fi
+# Bosh Google CPI
+echo "Getting sha & url for bosh gcp cpi release:${bosh_gcp_cpi_release} ..."
+if [[ ${bosh_gcp_cpi_release} -eq "latest" ]]; then
+     GCP_CPI=$(wget -q -O- https://storage.googleapis.com/bosh-cpi-artifacts | perl -ne 'print map("$_\n", m/<Key>bosh-google-cpi.*?Key>/g);' | awk -F "-" '{print$4}' | grep -v sha1 | perl -pe  's~\.tgz</Key>$~~g' | sort -ur | head -n 1)
+else
+     GCP_CPI=$bosh_gcp_cpi_release
+fi
+GCP_CPI_URL="https://storage.googleapis.com/bosh-cpi-artifacts/bosh-google-cpi-$GCP_CPI.tgz"
+GCP_CPI_SHA1=$(wget -q -O- $GCP_CPI_URL.sha1)
+
+if [[ ! $(echo $GCP_CPI_SHA1 | perl -pe 's/^[0-9a-f]{40}$/true/g') -eq "true" ]]; then
+    echo "ERROR: wget did dot return a valid SHA1 for bosh gcp cpi release..."
+    echo "ERROR: I got :$GCP_CPI_SHA1"
+    exit 1
+fi
+# Determine Stemcell
+if [[ ${bosh_stemcell_version} -eq "latest" ]]; then
+     AVAIL_GCP_STEMCELLS=$(wget -q -O- https://storage.googleapis.com/bosh-cpi-artifacts | perl -ne 'print map("$_\n", m/<Key>.*?light-bosh-stemcell.*?Key>/g);' | grep -v "<Contents>" | awk -F "-" '{print$4}' | sort -u)
+     IFS=$'\n'
+     STEMCELL_ID=$(echo "${AVAIL_GCP_STEMCELLS[*]}" | sort -nr | head -n1)
+else
+     STEMCELL_ID=$bosh_stemcell_version
+fi
+STEMCELL_URL="https://storage.googleapis.com/bosh-cpi-artifacts/light-bosh-stemcell-$STEMCELL_ID-google-kvm-ubuntu-trusty-go_agent.tgz"
+STEMCELL_SHA1=$(wget -q -O- $STEMCELL_URL.sha1)
+
+
+#############################################################
 #################### Gen Bosh Manifest ######################
 #############################################################
 # Edit Bosh Manifest & Deploy BOSH, at some point in future we can change to ENAML
@@ -53,6 +100,12 @@ perl -pi -e "s/<<gcp_proj_id>>/$gcp_proj_id/g" $bosh_manifest
 perl -pi -e "s/<<gcp_zone_1>>/$gcp_zone_1/g" $bosh_manifest
 perl -pi -e "s/<<bosh_director_user>>/$bosh_director_user/g" $bosh_manifest
 perl -pi -e "s/<<bosh_director_password>>/$bosh_director_password/g" $bosh_manifest
+perl -pi -e "s/<<BOSH_URL>>/$BOSH_URL/g" $bosh_manifest
+perl -pi -e "s/<<BOSH_SHA1>>/$BOSH_SHA1/g" $bosh_manifest
+perl -pi -e "s/<<GCP_CPI_URL>>/$GCP_CPI_URL/g" $bosh_manifest
+perl -pi -e "s/<<GCP_CPI_SHA1>>/$GCP_CPI_SHA1/g" $bosh_manifest
+perl -pi -e "s/<<STEMCELL_URL>>/$BOSH_URL/g" $bosh_manifest
+perl -pi -e "s/<<STEMCELL_SHA1>>/$BOSH_SHA1/g" $bosh_manifest
 
 echo "Will use the following manifest:"
 cat $bosh_manifest
@@ -143,16 +196,6 @@ fn_gcp_ssh "bosh update cloud-config /home/bosh/cloud-config.yml"
 #############################################################
 #################### Upload Stemcell         ################
 #############################################################
-echo "Uploading stemcell ${stemcell_version} ..."
-# Determine Stemcell
-if [[ ${stemcell_version} -eq "latest" ]]; then
-     AVAIL_GCP_STEMCELLS=$(wget -q -O- https://storage.googleapis.com/bosh-cpi-artifacts | perl -ne 'print map("$_\n", m/<Key>.*?light-bosh-stemcell.*?Key>/g);' | grep -v "<Contents>" | awk -F "-" '{print$4}' | sort -u)
-     IFS=$'\n'
-     STEMCELL_ID=$(echo "${AVAIL_GCP_STEMCELLS[*]}" | sort -nr | head -n1)
-else
-     STEMCELL_ID=$stemcell_version
-fi
-STEMCELL_URL="https://storage.googleapis.com/bosh-cpi-artifacts/light-bosh-stemcell-$STEMCELL_ID-google-kvm-ubuntu-trusty-go_agent.tgz"
-STEMCELL_SHA1="$STEMCELL_URL.sha1"
+echo "Uploading stemcell ${bosh_stemcell_version} ..."
 #Upload stemcell...
 fn_gcp_ssh "bosh upload stemcell $STEMCELL_URL"
