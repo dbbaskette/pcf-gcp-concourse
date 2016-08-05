@@ -76,6 +76,13 @@ fi
 STEMCELL_URL="https://storage.googleapis.com/bosh-cpi-artifacts/light-bosh-stemcell-$STEMCELL_ID-google-kvm-ubuntu-trusty-go_agent.tgz"
 STEMCELL_SHA1=$(wget -q -O- $STEMCELL_URL.sha1)
 
+echo "Using the following for bosh-init manifest:"
+echo "BOSH_URL=$BOSH_URL"
+echo "BOSH_SHA1=$BOSH_SHA1"
+echo "GCP_CPI_URL=$BOSH_URL"
+echo "GCP_CPI_SHA1=$BOSH_SHA1"
+echo "STEMCELL_URL=$BOSH_URL"
+echo "STEMCELL_SHA1=$BOSH_SHA1"
 
 #############################################################
 #################### Gen Bosh Manifest ######################
@@ -104,8 +111,8 @@ perl -pi -e "s/<<BOSH_URL>>/$BOSH_URL/g" $bosh_manifest
 perl -pi -e "s/<<BOSH_SHA1>>/$BOSH_SHA1/g" $bosh_manifest
 perl -pi -e "s/<<GCP_CPI_URL>>/$GCP_CPI_URL/g" $bosh_manifest
 perl -pi -e "s/<<GCP_CPI_SHA1>>/$GCP_CPI_SHA1/g" $bosh_manifest
-perl -pi -e "s/<<STEMCELL_URL>>/$BOSH_URL/g" $bosh_manifest
-perl -pi -e "s/<<STEMCELL_SHA1>>/$BOSH_SHA1/g" $bosh_manifest
+perl -pi -e "s/<<STEMCELL_URL>>/$STEMCELL_URL/g" $bosh_manifest
+perl -pi -e "s/<<STEMCELL_SHA1>>/$STEMCELL_SHA1/g" $bosh_manifest
 
 echo "Will use the following manifest:"
 cat $bosh_manifest
