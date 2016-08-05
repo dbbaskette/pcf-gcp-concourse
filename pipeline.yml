@@ -82,6 +82,7 @@ jobs:
         gcp_terraform_prefix: {{gcp_terraform_prefix}}
         gcp_terraform_subnet_bosh: {{gcp_terraform_subnet_bosh}}
         gcp_terraform_subnet_concourse: {{gcp_terraform_subnet_concourse}}
+        gcp_terraform_subnet_vault: {{gcp_terraform_subnet_vault}}
         gcp_terraform_subnet_pcf_zone1: {{gcp_terraform_subnet_pcf_zone1}}
         gcp_terraform_subnet_pcf_zone2: {{gcp_terraform_subnet_pcf_zone2}}
 
@@ -94,7 +95,7 @@ jobs:
     - get: pcf-gcp-concourse
       trigger: false
     - get: gcp-run-id
-      trigger: true
+      trigger: false
       passed: [Terraform-IaaS-1]
   - task: deploy-bosh
     config:
@@ -171,7 +172,7 @@ jobs:
     - get: pcf-gcp-concourse
       trigger: false
     - get: gcp-run-id
-      trigger: true
+      trigger: false
       passed: [Deploy-Bosh-2]
   - task: deploy-concourse
     config:

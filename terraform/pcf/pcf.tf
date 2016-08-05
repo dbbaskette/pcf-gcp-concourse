@@ -1,25 +1,26 @@
 //// Declar vars
 
-variable "project" {}
-variable "region" {}
-variable "resource-prefix" {}
-variable "bosh-subnet-cidr-range" {}
-variable "zone1" {}
-variable "zone2" {}
-variable "concourse-subnet-cidr-range" {}
-variable "pcf-subnet-zone1-cidr-range" {}
-variable "pcf-subnet-zone2-cidr-range" {}
-variable "sys-domain" {}
-variable "key-json" {}
+variable "gcp_proj_id" {}
+variable "gcp_region" {}
+variable "gcp_terraform_prefix" {}
+variable "gcp_terraform_subnet_bosh" {}
+variable "gcp_zone_1" {}
+variable "gcp_zone_2" {}
+variable "gcp_terraform_subnet_concourse" {}
+variable "gcp_terraform_subnet_vault" {}
+variable "gcp_terraform_subnet_pcf_zone1" {}
+variable "gcp_terraform_subnet_pcf_zone2" {}
+variable "pcf_ert_sys_domain" {}
+variable "gcp_svc_acct_key" {}
 
 //// Set GCP Provider info
 
 provider "google" {
-  project = "${var.project}"
-  region = "${var.region}"
-  # zone1 = "${var.zone1}"
-  # zone2 = "${var.zone2}"
-  credentials = "${var.key-json}"
+  project = "${var.gcp_proj_id}"
+  region = "${var.gcp_region}"
+  # zone1 = "${var.gcp_zone_1}"
+  # zone2 = "${var.gcp_zone_2}"
+  credentials = "${var.gcp_svc_acct_key}"
 }
 
 /////////////////////////////////
@@ -28,52 +29,59 @@ provider "google" {
 
   //// Create GCP Virtual Network
   resource "google_compute_network" "vnet" {
-    name       = "${var.resource-prefix}-vnet"
+    name       = "${var.gcp_terraform_prefix}-vnet"
   }
 
   //// Create CloudFoundry Static IP address
   resource "google_compute_address" "cloudfoundry-public-ip" {
-    name   = "${var.resource-prefix}-cloudfoundry-public-ip"
-    region = "${var.region}"
+    name   = "${var.gcp_terraform_prefix}-cloudfoundry-public-ip"
+    region = "${var.gcp_region}"
   }
 
   //// Create Concourse Static IP address
   resource "google_compute_address" "concourse-public-ip" {
-    name   = "${var.resource-prefix}-concourse-public-ip"
-    region = "${var.region}"
+    name   = "${var.gcp_terraform_prefix}-concourse-public-ip"
+    region = "${var.gcp_region}"
   }
 
   //// Create Subnet for the BOSH director
   resource "google_compute_subnetwork" "subnet-bosh" {
-    name          = "${var.resource-prefix}-subnet-bosh-${var.region}"
-    ip_cidr_range = "${var.bosh-subnet-cidr-range}"
+    name          = "${var.gcp_terraform_prefix}-subnet-bosh-${var.gcp_region}"
+    ip_cidr_range = "${var.gcp_terraform_subnet_bosh}"
     network       = "${google_compute_network.vnet.self_link}"
   }
 
   //// Create Subnet for Concourse
   resource "google_compute_subnetwork" "subnet-concourse" {
-    name          = "${var.resource-prefix}-subnet-concourse-${var.zone1}"
-    ip_cidr_range = "${var.concourse-subnet-cidr-range}"
+    name          = "${var.gcp_terraform_prefix}-subnet-concourse-${var.gcp_zone_1}"
+    ip_cidr_range = "${var.gcp_terraform_subnet_concourse}"
+    network       = "${google_compute_network.vnet.self_link}"
+  }
+
+  //// Create Subnet for Vault
+  resource "google_compute_subnetwork" "subnet-vault" {
+    name          = "${var.gcp_terraform_prefix}-subnet-vault-${var.gcp_zone_1}"
+    ip_cidr_range = "${var.gcp_terraform_subnet_vault}"
     network       = "${google_compute_network.vnet.self_link}"
   }
 
   //// Create Subnet for PCF - zone1
   resource "google_compute_subnetwork" "subnet-pcf-zone1" {
-    name          = "${var.resource-prefix}-subnet-pcf-${var.zone1}"
-    ip_cidr_range = "${var.pcf-subnet-zone1-cidr-range}"
+    name          = "${var.gcp_terraform_prefix}-subnet-pcf-${var.gcp_zone_1}"
+    ip_cidr_range = "${var.gcp_terraform_subnet_pcf_zone1}"
     network       = "${google_compute_network.vnet.self_link}"
   }
 
     //// Create Subnet for PCF - zone2
   resource "google_compute_subnetwork" "subnet-pcf-zone2" {
-    name          = "${var.resource-prefix}-subnet-pcf-${var.zone2}"
-    ip_cidr_range = "${var.pcf-subnet-zone2-cidr-range}"
+    name          = "${var.gcp_terraform_prefix}-subnet-pcf-${var.gcp_zone_2}"
+    ip_cidr_range = "${var.gcp_terraform_subnet_pcf_zone2}"
     network       = "${google_compute_network.vnet.self_link}"
   }
 
   //// Create Firewall Rule for allow-ssh
   resource "google_compute_firewall" "allow-ssh" {
-    name    = "${var.resource-prefix}-allow-ssh"
+    name    = "${var.gcp_terraform_prefix}-allow-ssh"
     network = "${google_compute_network.vnet.name}"
     allow {
       protocol = "tcp"
@@ -88,7 +96,7 @@ provider "google" {
 
   //// Create Firewall Rule for nat-traverse
   resource "google_compute_firewall" "nat-traverse" {
-    name    = "${var.resource-prefix}-nat-traverse"
+    name    = "${var.gcp_terraform_prefix}-nat-traverse"
     network = "${google_compute_network.vnet.name}"
 
     allow {
@@ -108,7 +116,7 @@ provider "google" {
 
   //// Create Firewall Rule for concourse
   resource "google_compute_firewall" "concourse" {
-    name    = "${var.resource-prefix}-concourse"
+    name    = "${var.gcp_terraform_prefix}-concourse"
     network = "${google_compute_network.vnet.name}"
     allow {
       protocol = "icmp"
@@ -123,7 +131,7 @@ provider "google" {
 
   //// Create Firewall Rule for PCF
   resource "google_compute_firewall" "pcf-public" {
-    name    = "${var.resource-prefix}-pcf-public"
+    name    = "${var.gcp_terraform_prefix}-pcf-public"
     network = "${google_compute_network.vnet.name}"
     allow {
       protocol = "icmp"
@@ -138,7 +146,7 @@ provider "google" {
 
   //// Create Firewall Rule for PCF - SSH
   resource "google_compute_firewall" "pcf-public-ssh" {
-    name    = "${var.resource-prefix}-pcf-public-ssh"
+    name    = "${var.gcp_terraform_prefix}-pcf-public-ssh"
     network = "${google_compute_network.vnet.name}"
     allow {
       protocol = "icmp"
@@ -153,9 +161,9 @@ provider "google" {
 
   //// Create HTTP Health Check Rule for PCF
   resource "google_compute_http_health_check" "pcf-public" {
-  name         = "${var.resource-prefix}-pcf-public"
+  name         = "${var.gcp_terraform_prefix}-pcf-public"
   request_path = "/v2/info"
-  host         = "api.${var.sys-domain}"
+  host         = "api.${var.pcf_ert_sys_domain}"
   port         = 80
 
   healthy_threshold   = 10
@@ -166,7 +174,7 @@ provider "google" {
 
   //// Create HTTP Health Check Rule for Concourse
   resource "google_compute_http_health_check" "concourse-public" {
-  name         = "${var.resource-prefix}-concourse-public"
+  name         = "${var.gcp_terraform_prefix}-concourse-public"
   request_path = "/"
   host         = ""
   port         = 8080
@@ -179,7 +187,7 @@ provider "google" {
 
   //// Create Target Pool for PCF
   resource "google_compute_target_pool" "pcf-public" {
-  name          = "${var.resource-prefix}-pcf-public"
+  name          = "${var.gcp_terraform_prefix}-pcf-public"
   health_checks = [
     "${google_compute_http_health_check.pcf-public.name}",
   ]
@@ -187,12 +195,12 @@ provider "google" {
 
   //// Create Target Pool for PCF - SSH
   resource "google_compute_target_pool" "pcf-public-ssh" {
-  name          = "${var.resource-prefix}-pcf-public-ssh"
+  name          = "${var.gcp_terraform_prefix}-pcf-public-ssh"
 }
 
   //// Create Target Pool for Concourse
   resource "google_compute_target_pool" "concourse-public" {
-  name          = "${var.resource-prefix}-concourse-public"
+  name          = "${var.gcp_terraform_prefix}-concourse-public"
   health_checks = [
     "${google_compute_http_health_check.concourse-public.name}",
   ]
@@ -200,7 +208,7 @@ provider "google" {
 
   //// Create Forwarding for PCF - http
   resource "google_compute_forwarding_rule" "pcf-http" {
-  name       = "${var.resource-prefix}-pcf-http"
+  name       = "${var.gcp_terraform_prefix}-pcf-http"
   target     = "${google_compute_target_pool.pcf-public.self_link}"
   ip_address = "${google_compute_address.cloudfoundry-public-ip.address}"
   port_range = "80"
@@ -208,7 +216,7 @@ provider "google" {
 
   //// Create Forwarding for PCF - https
   resource "google_compute_forwarding_rule" "pcf-https" {
-  name       = "${var.resource-prefix}-pcf-https"
+  name       = "${var.gcp_terraform_prefix}-pcf-https"
   target     = "${google_compute_target_pool.pcf-public.self_link}"
   ip_address = "${google_compute_address.cloudfoundry-public-ip.address}"
   port_range = "443"
@@ -216,7 +224,7 @@ provider "google" {
 
   //// Create Forwarding for PCF - ssh
   resource "google_compute_forwarding_rule" "pcf-ssh" {
-  name       = "${var.resource-prefix}-pcf-ssh"
+  name       = "${var.gcp_terraform_prefix}-pcf-ssh"
   target     = "${google_compute_target_pool.pcf-public-ssh.self_link}"
   ip_address = "${google_compute_address.cloudfoundry-public-ip.address}"
   port_range = "2222"
@@ -224,7 +232,7 @@ provider "google" {
 
   //// Create Forwarding for PCF - wss
   resource "google_compute_forwarding_rule" "pcf-wss" {
-  name       = "${var.resource-prefix}-pcf-wss"
+  name       = "${var.gcp_terraform_prefix}-pcf-wss"
   target     = "${google_compute_target_pool.pcf-public.self_link}"
   ip_address = "${google_compute_address.cloudfoundry-public-ip.address}"
   port_range = "4443"
@@ -232,7 +240,7 @@ provider "google" {
 
   //// Create Forwarding for Concourse - http
   resource "google_compute_forwarding_rule" "concourse-http" {
-  name       = "${var.resource-prefix}-concourse-http"
+  name       = "${var.gcp_terraform_prefix}-concourse-http"
   target     = "${google_compute_target_pool.concourse-public.self_link}"
   ip_address = "${google_compute_address.concourse-public-ip.address}"
   port_range = "8080"
@@ -240,7 +248,7 @@ provider "google" {
 
   //// Create Forwarding for Concourse - https
   resource "google_compute_forwarding_rule" "concourse-https" {
-  name       = "${var.resource-prefix}-concourse-https"
+  name       = "${var.gcp_terraform_prefix}-concourse-https"
   target     = "${google_compute_target_pool.concourse-public.self_link}"
   ip_address = "${google_compute_address.concourse-public-ip.address}"
   port_range = "4443"
@@ -251,11 +259,11 @@ provider "google" {
 /////////////////////////////////////
 
 resource "google_compute_instance" "bosh-bastion" {
-  name         = "${var.resource-prefix}-bosh-bastion"
+  name         = "${var.gcp_terraform_prefix}-bosh-bastion"
   machine_type = "n1-standard-1"
-  zone         = "${var.zone1}"
+  zone         = "${var.gcp_zone_1}"
 
-  tags = ["${var.resource-prefix}-instance", "nat-traverse", "allow-ssh"]
+  tags = ["${var.gcp_terraform_prefix}-instance", "nat-traverse", "allow-ssh"]
 
   disk {
     image = "ubuntu-1404-trusty-v20160610"
@@ -273,8 +281,8 @@ resource "google_compute_instance" "bosh-bastion" {
   }
 
   metadata {
-    zone="${var.zone1}"
-    region="${var.region}"
+    zone="${var.gcp_zone_1}"
+    region="${var.gcp_region}"
   }
 
   metadata_startup_script = <<EOF
@@ -306,11 +314,11 @@ EOF
 /////////////////////////////////
 
 resource "google_compute_instance" "nat-gateway" {
-  name           = "${var.resource-prefix}-nat-gateway"
+  name           = "${var.gcp_terraform_prefix}-nat-gateway"
   machine_type   = "n1-standard-1"
-  zone           = "${var.zone1}"
+  zone           = "${var.gcp_zone_1}"
   can_ip_forward = true
-  tags = ["${var.resource-prefix}-instance", "nat-traverse", "allow-ssh"]
+  tags = ["${var.gcp_terraform_prefix}-instance", "nat-traverse", "allow-ssh"]
 
   disk {
     image = "ubuntu-1404-trusty-v20160610"
@@ -334,11 +342,11 @@ EOF
 //// Create NAT Route
 
 resource "google_compute_route" "no-pubip-route" {
-  name        = "${var.resource-prefix}-no-pubip-route"
+  name        = "${var.gcp_terraform_prefix}-no-pubip-route"
   dest_range  = "0.0.0.0/0"
   network     = "${google_compute_network.vnet.name}"
   next_hop_instance = "${google_compute_instance.nat-gateway.name}"
-  next_hop_instance_zone = "${var.zone1}"
+  next_hop_instance_zone = "${var.gcp_zone_1}"
   priority    = 800
   tags        = ["no-ip"]
 }
@@ -352,13 +360,13 @@ output "Concourse IP Address" {
 }
 
 output "Zone 1 - Concourse Subnet" {
-    value = "${var.concourse-subnet-cidr-range}"
+    value = "${var.gcp_terraform_subnet_concourse}"
 }
 
 output "Zone 1 - CloudFoundry Subnet" {
-    value = "${var.pcf-subnet-zone1-cidr-range}"
+    value = "${var.gcp_terraform_subnet_pcf_zone1}"
 }
 
 output "Zone 2 - CloudFoundry Subnet" {
-    value = "${var.pcf-subnet-zone2-cidr-range}"
+    value = "${var.gcp_terraform_subnet_pcf_zone2}"
 }
