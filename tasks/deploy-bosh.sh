@@ -30,6 +30,18 @@ function fn_gcp_ssh {
   --zone ${gcp_zone_1} --quiet
 }
 
+
+#############################################################
+####### Wipe Pre-existing BOSH               ################
+#############################################################
+
+BOSH_INSTANCE_CMD="gcloud compute instances list --flatten tags.items[] --format json | jq '.[] | select ((.tags.items == \"$gcp_terraform_prefix-instance\" ) and (.metadata.items[].value == \"bosh\" and .metadata.items[].key == \"job\" )) | .name' | tr -d '\"' | sort -u"
+for i in $(eval $BOSH_INSTANCE_CMD);do
+  echo "Deleting Bosh Instance:$i ..."
+  gcloud compute instances delete $i --quiet --zone ${gcp_zone_1} --delete-disks all
+done
+
+
 #############################################################
 ####### Detect bosh, CPI, stemcell  versions ################
 #############################################################
@@ -77,12 +89,12 @@ STEMCELL_URL="https://storage.googleapis.com/bosh-cpi-artifacts/light-bosh-stemc
 STEMCELL_SHA1=$(wget -q -O- $STEMCELL_URL.sha1)
 
 echo "Using the following for bosh-init manifest:"
-echo "BOSH_URL=$BOSH_URL"
-echo "BOSH_SHA1=$BOSH_SHA1"
-echo "GCP_CPI_URL=$GCP_CPI_URL"
-echo "GCP_CPI_SHA1=$GCP_CPI_SHA1"
-echo "STEMCELL_URL=$STEMCELL_URL"
-echo "STEMCELL_SHA1=$STEMCELL_SHA1"
+echo "          BOSH_URL=$BOSH_URL"
+echo "          BOSH_SHA1=$BOSH_SHA1"
+echo "          GCP_CPI_URL=$GCP_CPI_URL"
+echo "          GCP_CPI_SHA1=$GCP_CPI_SHA1"
+echo "          STEMCELL_URL=$STEMCELL_URL"
+echo "          STEMCELL_SHA1=$STEMCELL_SHA1"
 
 #############################################################
 #################### Gen Bosh Manifest ######################

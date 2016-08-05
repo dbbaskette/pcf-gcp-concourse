@@ -36,13 +36,22 @@ for y in ${ZONE[@]}; do
 	echo "region=$gcp_region"
 	echo "zone=$y"
 	echo "----------------------------------------------------------------------------------------------"
-  #for i in $(gcloud compute instances list --filter "tags.items[0]~${gcp_terraform_prefix}-instance OR tags.items[1]~${gcp_terraform_prefix}-instance OR tags.items[2]~${gcp_terraform_prefix}-instance" | grep $y | awk '{print $1}'); do
+  echo "Looking for bosh instance(s) first ...."
+  echo "----------------------------------------------------------------------------------------------"
+  BOSH_INSTANCE_CMD="gcloud compute instances list --flatten tags.items[] --format json | jq '.[] | select ((.tags.items == \"$gcp_terraform_prefix-instance\" ) and (.metadata.items[].value == \"bosh\" and .metadata.items[].key == \"job\" )) | .name' | tr -d '\"' | sort -u"
+  for i in $(eval $BOSH_INSTANCE_CMD);do
+    echo "Deleting Instance:$i ..."
+    gcloud compute instances delete $i --quiet --zone $y --delete-disks all
+  done
+  echo "----------------------------------------------------------------------------------------------"
+  echo "Removed bosh instance(s)...."
+  echo "----------------------------------------------------------------------------------------------"
+
   MY_CMD="gcloud compute instances list --flatten tags.items[] --format json | jq '.[] | select ((.tags.items == \"$gcp_terraform_prefix-instance\" ) and (.zone == \"$y\")) | .name' | tr -d '\"'"
   echo $MY_CMD
   for i in $(eval $MY_CMD); do
   	 echo "Deleting Instance:$i ..."
   	 gcloud compute instances delete $i --quiet --zone $y --delete-disks all
-
   done
 	echo "=============================================================================================="
   echo "All compute/instances with the prefix=$gcp_terraform_prefix in zone=$y have been wiped !!!"
@@ -68,7 +77,7 @@ for z in ${COMPONENT[@]}; do
 	echo "----------------------------------------------------------------------------------------------"
 	echo "Will delete all $z objects with the prefix=$gcp_terraform_prefix in region=$gcp_region"
 	echo "----------------------------------------------------------------------------------------------"
-	if [[ $z == "subnets" ]]; then z="networks $z"; fi
+  if [[ $z == "subnets" ]]; then z="networks $z"; fi
 	for i in $(gcloud compute $z list  | grep $gcp_terraform_prefix | grep -v default | awk '{print $1}'); do
    echo "Deleting $z:$i ..."
 	 if [[ $z == "subnets" ]]; then
