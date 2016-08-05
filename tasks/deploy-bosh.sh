@@ -39,10 +39,10 @@ bosh_gcp_cpi_release=latest
 echo "Getting sha for bosh release:${bosh_release} ..."
 if [[ ${bosh_release} -eq "latest" ]]; then
      BOSH_SHA1=$(wget -q -O- http://bosh.io/releases/github.com/cloudfoundry/bosh?latest | grep sha | head -n 1 | awk '{print$2}')
-     BOSH_URL=$(wget -q -O- http://bosh.io/releases/github.com/cloudfoundry/bosh?latest | grep url | head -n 1 | awk '{print$2}')
+     export BOSH_URL=$(wget -q -O- http://bosh.io/releases/github.com/cloudfoundry/bosh?latest | grep url | head -n 1 | awk '{print$2}')
 else
      BOSH_SHA1=$(wget -q -O- http://bosh.io/releases/github.com/cloudfoundry/bosh?version=${bosh_release} | grep sha | head -n 1 | awk '{print$2}')
-     BOSH_URL=$(wget -q -O- http://bosh.io/releases/github.com/cloudfoundry/bosh?version=${bosh_release}| grep url | head -n 1 | awk '{print$2}')
+     export BOSH_URL=$(wget -q -O- http://bosh.io/releases/github.com/cloudfoundry/bosh?version=${bosh_release}| grep url | head -n 1 | awk '{print$2}')
 fi
 
 if [[ ! $(echo $BOSH_SHA1 | perl -pe 's/^[0-9a-f]{40}$/true/g') -eq "true" ]]; then
