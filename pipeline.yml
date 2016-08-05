@@ -12,7 +12,7 @@ resources:
   type: git
   source:
     uri: git@github.com:pivotal-customer0/pcf-gcp-concourse.git
-    branch: master
+    branch: mglynn-dev
     private_key: {{githubsshkey}}
 
 - name: gcp-run-id
