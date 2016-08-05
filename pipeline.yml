@@ -209,3 +209,30 @@ jobs:
         concourse_external_url: {{concourse_external_url}}
         concourse_basic_auth_username: {{concourse_basic_auth_username}}
         concourse_basic_auth_password: {{concourse_basic_auth_password}}
+
+- name: Deploy-Vault-4
+  serial: true
+  max_in_flight: 1
+  serial_groups: [full]
+  plan:
+  - aggregate:
+    - get: pcf-gcp-concourse
+      trigger: false
+    - get: gcp-run-id
+      trigger: false
+      passed: [Deploy-Concourse-3]
+  - task: deploy-concourse
+    config:
+      platform: linux
+      image: docker:///virtmerlin/pcf-gcp-worker
+      inputs:
+        - name: pcf-gcp-concourse
+      run:
+        path: pcf-gcp-concourse/tasks/deploy-vault.sh
+      params:
+        gcp_proj_id: {{gcp_proj_id}}
+        gcp_region: {{gcp_region}}
+        gcp_zone_1: {{gcp_zone_1}}
+        gcp_zone_2: {{gcp_zone_2}}
+        gcp_svc_acct_key: {{gcp_svc_acct_key}}
+        gcp_terraform_prefix: {{gcp_terraform_prefix}}

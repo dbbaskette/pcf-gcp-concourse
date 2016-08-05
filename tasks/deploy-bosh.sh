@@ -176,6 +176,8 @@ perl -pi -e "s~<<gcp_terraform_subnet_bosh>>~$gcp_terraform_subnet_bosh~g" $clou
 perl -pi -e "s/<<gcp_terraform_subnet_bosh_gateway>>/$gcp_terraform_subnet_bosh_gateway/g" $cloud_config
 perl -pi -e "s~<<gcp_terraform_subnet_concourse>>~$gcp_terraform_subnet_concourse~g" $cloud_config
 perl -pi -e "s/<<gcp_terraform_subnet_concourse_gateway>>/$gcp_terraform_subnet_concourse_gateway/g" $cloud_config
+perl -pi -e "s~<<gcp_terraform_subnet_vault>>~$gcp_terraform_subnet_vault~g" $cloud_config
+perl -pi -e "s/<<gcp_terraform_subnet_vault_gateway>>/$gcp_terraform_subnet_vault_gateway/g" $cloud_config
 perl -pi -e "s~<<gcp_terraform_subnet_pcf_zone1>>~$gcp_terraform_subnet_pcf_zone1~g" $cloud_config
 perl -pi -e "s/<<gcp_terraform_subnet_pcf_zone1_gateway>>/$gcp_terraform_subnet_pcf_zone1_gateway/g" $cloud_config
 perl -pi -e "s~<<gcp_terraform_subnet_pcf_zone2>>~$gcp_terraform_subnet_pcf_zone2~g" $cloud_config

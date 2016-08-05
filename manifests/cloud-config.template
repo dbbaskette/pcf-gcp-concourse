@@ -109,7 +109,7 @@ networks:
     dns: <<vault_subnet_DNS>>
     cloud_properties:
       network_name: <<gcp_terraform_prefix>>-vnet
-      subnetwork_name: <<gcp_terraform_prefix>>-subnet-concourse-<<gcp_zone_1>>
+      subnetwork_name: <<gcp_terraform_prefix>>-subnet-vault-<<gcp_zone_1>>
       tags:
       - nat-traverse
       - no-ip
