@@ -97,7 +97,7 @@ fi
 bosh_manifest="/tmp/bosh-init.yml"
 cp $bosh_manifest_template $bosh_manifest
 
-#Alt regex delim ~ for subnet cidr variable
+#Alt regex delim ~ for subnet cidr & url variables
 perl -pi -e "s~<<gcp_terraform_subnet_bosh>>~$gcp_terraform_subnet_bosh~g" $bosh_manifest
 perl -pi -e "s/<<gcp_terraform_subnet_bosh_gateway>>/$gcp_terraform_subnet_bosh_gateway/g" $bosh_manifest
 perl -pi -e "s/<<gcp_terraform_subnet_bosh_static>>/$gcp_terraform_subnet_bosh_static/g" $bosh_manifest
@@ -107,19 +107,12 @@ perl -pi -e "s/<<gcp_proj_id>>/$gcp_proj_id/g" $bosh_manifest
 perl -pi -e "s/<<gcp_zone_1>>/$gcp_zone_1/g" $bosh_manifest
 perl -pi -e "s/<<bosh_director_user>>/$bosh_director_user/g" $bosh_manifest
 perl -pi -e "s/<<bosh_director_password>>/$bosh_director_password/g" $bosh_manifest
-echo "Debug 1"
-perl -pi -e "s/<<BOSH_URL>>/blah/g" $bosh_manifest
-echo "Debug 2"
+perl -pi -e "s~<<BOSH_URL>>~$BOSH_URL~g" $bosh_manifest
 perl -pi -e "s/<<BOSH_SHA1>>/$BOSH_SHA1/g" $bosh_manifest
-echo "Debug 3"
-perl -pi -e "s/<<GCP_CPI_URL>>/$GCP_CPI_URL/g" $bosh_manifest
-echo "Debug 4"
+perl -pi -e "s~<<GCP_CPI_URL>>~$GCP_CPI_URL~g" $bosh_manifest
 perl -pi -e "s/<<GCP_CPI_SHA1>>/$GCP_CPI_SHA1/g" $bosh_manifest
-echo "Debug 5"
-perl -pi -e "s/<<STEMCELL_URL>>/$STEMCELL_URL/g" $bosh_manifest
-echo "Debug 6"
+perl -pi -e "s~<<STEMCELL_URL>>~$STEMCELL_URL~g" $bosh_manifest
 perl -pi -e "s/<<STEMCELL_SHA1>>/$STEMCELL_SHA1/g" $bosh_manifest
-echo "Debug 7"
 
 echo "Will use the following manifest:"
 cat $bosh_manifest
