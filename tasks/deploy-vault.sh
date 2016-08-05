@@ -47,7 +47,7 @@ fn_gcp_ssh "wget $OMG_PRODUCT_CC -O ~/$CC_ENAML_PLUGIN_FILE_NAME"
 fn_gcp_ssh "omg-cli register-plugin --type product --pluginpath ~/$CC_ENAML_PLUGIN_FILE_NAME"
 
 #############################################################
-########## generate manifest for Vault     w/ ENAML  ########
+########## Deploy Vault     w/ ENAML  #######################
 #############################################################
 echo "Using ENAML goodness to deploy Vault ..."
 export OMG_CC_DEPLOY_CMD="omg-cli deploy-product \
@@ -62,7 +62,3 @@ vault-plugin-linux \
 "
 
 fn_gcp_ssh "$OMG_CC_DEPLOY_CMD" bosh
-#############################################################
-####### wont use enaml omg-cli just yet #####################
-####### Need a new Plugin for concourse 1.6.x ###############
-#############################################################
