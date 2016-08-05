@@ -117,6 +117,8 @@ jobs:
         gcp_terraform_subnet_bosh_gateway: {{gcp_terraform_subnet_bosh_gateway}}
         gcp_terraform_subnet_concourse: {{gcp_terraform_subnet_concourse}}
         gcp_terraform_subnet_concourse_gateway: {{gcp_terraform_subnet_concourse_gateway}}
+        gcp_terraform_subnet_vault: {{gcp_terraform_subnet_vault}}
+        gcp_terraform_subnet_vault_gateway: {{gcp_terraform_subnet_vault_gateway}}
         gcp_terraform_subnet_pcf_zone1: {{gcp_terraform_subnet_pcf_zone1}}
         gcp_terraform_subnet_pcf_zone1_gateway: {{gcp_terraform_subnet_pcf_zone1_gateway}}
         gcp_terraform_subnet_pcf_zone2: {{gcp_terraform_subnet_pcf_zone2}}
