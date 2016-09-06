@@ -1,4 +1,4 @@
-//// Declar vars
+//// Declare vars
 
 variable "gcp_proj_id" {}
 variable "gcp_region" {}
@@ -277,8 +277,17 @@ resource "google_compute_instance" "bosh-bastion" {
   }
 
   service_account {
-    scopes = ["cloud-platform"]
+    #scopes = ["cloud-platform"]
+    scopes = [
+              "https://www.googleapis.com/auth/logging.write",
+              "https://www.googleapis.com/auth/monitoring.write",
+              "https://www.googleapis.com/auth/servicecontrol",
+              "https://www.googleapis.com/auth/service.management.readonly",
+              "https://www.googleapis.com/auth/devstorage.full_control"
+            ]
   }
+
+
 
   metadata {
     zone="${var.gcp_zone_1}"
@@ -310,11 +319,12 @@ EOF
 }
 
 /////////////////////////////////
-//// Create NAT instance      ///
+//// Create NAT instance(s)   ///
 /////////////////////////////////
 
+//// NAT Pri
 resource "google_compute_instance" "nat-gateway" {
-  name           = "${var.gcp_terraform_prefix}-nat-gateway"
+  name           = "${var.gcp_terraform_prefix}-nat-gateway-pri"
   machine_type   = "n1-standard-1"
   zone           = "${var.gcp_zone_1}"
   can_ip_forward = true
@@ -339,18 +349,58 @@ EOF
 
 }
 
+//// NAT Sec
+
+resource "google_compute_instance" "nat-gateway" {
+  name           = "${var.gcp_terraform_prefix}-nat-gateway-sec"
+  machine_type   = "n1-standard-1"
+  zone           = "${var.gcp_zone_2}"
+  can_ip_forward = true
+  tags = ["${var.gcp_terraform_prefix}-instance", "nat-traverse", "allow-ssh"]
+
+  disk {
+    image = "ubuntu-1404-trusty-v20160610"
+  }
+
+  network_interface {
+    subnetwork = "${google_compute_subnetwork.subnet-bosh.name}"
+    access_config {
+      // Ephemeral
+    }
+  }
+
+  metadata_startup_script = <<EOF
+#! /bin/bash
+sudo sh -c 'echo 1 > /proc/sys/net/ipv4/ip_forward'
+sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+EOF
+
+}
+
 //// Create NAT Route
 
-resource "google_compute_route" "no-pubip-route" {
-  name        = "${var.gcp_terraform_prefix}-no-pubip-route"
+resource "google_compute_route" "nat-primary" {
+  name        = "${var.gcp_terraform_prefix}-nat-primary"
   dest_range  = "0.0.0.0/0"
   network     = "${google_compute_network.vnet.name}"
-  next_hop_instance = "${google_compute_instance.nat-gateway.name}"
+  next_hop_instance = "${google_compute_instance.nat-gateway-pri.name}"
   next_hop_instance_zone = "${var.gcp_zone_1}"
   priority    = 800
   tags        = ["no-ip"]
 }
 
+resource "google_compute_route" "nat-secondary" {
+  name        = "${var.gcp_terraform_prefix}-nat-secondary"
+  dest_range  = "0.0.0.0/0"
+  network     = "${google_compute_network.vnet.name}"
+  next_hop_instance = "${google_compute_instance.nat-gateway-sec.name}"
+  next_hop_instance_zone = "${var.gcp_zone_1}"
+  priority    = 800
+  tags        = ["no-ip"]
+}
+
+
+////Public IP Addresses
 output "CloudFoundry IP Address" {
     value = "${google_compute_address.cloudfoundry-public-ip.address}"
 }
