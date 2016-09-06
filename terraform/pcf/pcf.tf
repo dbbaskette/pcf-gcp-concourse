@@ -323,7 +323,7 @@ EOF
 /////////////////////////////////
 
 //// NAT Pri
-resource "google_compute_instance" "nat-gateway" {
+resource "google_compute_instance" "nat-gateway-pri" {
   name           = "${var.gcp_terraform_prefix}-nat-gateway-pri"
   machine_type   = "n1-standard-1"
   zone           = "${var.gcp_zone_1}"
@@ -351,7 +351,7 @@ EOF
 
 //// NAT Sec
 
-resource "google_compute_instance" "nat-gateway" {
+resource "google_compute_instance" "nat-gateway-sec" {
   name           = "${var.gcp_terraform_prefix}-nat-gateway-sec"
   machine_type   = "n1-standard-1"
   zone           = "${var.gcp_zone_2}"
