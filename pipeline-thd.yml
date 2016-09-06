@@ -1,0 +1,101 @@
+resource_types:
+
+- name: pivnet
+  type: docker-image
+  source:
+    repository: pivotalcf/pivnet-resource
+    tag: latest-final
+
+resources:
+
+- name: pcf-gcp-concourse
+  type: git
+  source:
+    uri: git@github.com:pivotal-customer0/pcf-gcp-concourse.git
+    branch: master
+    private_key: {{githubsshkey}}
+
+- name: bosh-google-cpi-release
+  type: bosh-io-release
+  source:
+    repository: cloudfoundry-incubator/bosh-google-cpi-release
+
+- name: bosh-release
+  type: bosh-io-release
+  source:
+    repository: cloudfoundry/bosh
+
+- name: gcp-run-id
+  type: semver
+  source:
+    bucket: concourse-gcp
+    key: {{semver_file_name}}
+    initial_version: 1.0.0
+    access_key_id: {{aws_id}}
+    secret_access_key: {{aws_key}}
+
+jobs:
+- name: WipeEnv-0
+  serial: true
+  max_in_flight: 1
+  serial_groups: [full]
+  plan:
+  - aggregate:
+    - get: bosh-google-cpi-release
+      trigger: false
+    - get: bosh-release
+      trigger: false
+    - get: pcf-gcp-concourse
+      trigger: false
+    - get: gcp-run-id
+      params: {bump: major}
+  - task: wipe-env
+    config:
+      platform: linux
+      image: docker:///virtmerlin/pcf-gcp-worker
+      inputs:
+        - name: pcf-gcp-concourse
+      run:
+        path: pcf-gcp-concourse/tasks/wipe-env.sh
+      params:
+        gcp_proj_id: {{gcp_proj_id}}
+        gcp_region: {{gcp_region}}
+        gcp_zone_1: {{gcp_zone_1}}
+        gcp_zone_2: {{gcp_zone_2}}
+        gcp_svc_acct_key: {{gcp_svc_acct_key}}
+        gcp_terraform_prefix: {{gcp_terraform_prefix}}
+        arg_wipe: {{arg_wipe}}
+  - put: gcp-run-id
+    params: {file: gcp-run-id/number}
+
+- name: Terraform-IaaS-1
+  serial: true
+  max_in_flight: 1
+  serial_groups: [full]
+  plan:
+  - aggregate:
+    - get: pcf-gcp-concourse
+      trigger: false
+    - get: gcp-run-id
+      trigger: true
+      passed: [WipeEnv-0]
+  - task: terrafrom-iaas
+    config:
+      platform: linux
+      image: docker:///virtmerlin/pcf-gcp-worker
+      inputs:
+        - name: pcf-gcp-concourse
+      run:
+        path: pcf-gcp-concourse/tasks/terraform-iaas.sh
+      params:
+        gcp_proj_id: {{gcp_proj_id}}
+        gcp_region: {{gcp_region}}
+        gcp_zone_1: {{gcp_zone_1}}
+        gcp_zone_2: {{gcp_zone_2}}
+        gcp_svc_acct_key: {{gcp_svc_acct_key}}
+        gcp_terraform_prefix: {{gcp_terraform_prefix}}
+        gcp_terraform_subnet_bosh: {{gcp_terraform_subnet_bosh}}
+        gcp_terraform_subnet_concourse: {{gcp_terraform_subnet_concourse}}
+        gcp_terraform_subnet_vault: {{gcp_terraform_subnet_vault}}
+        gcp_terraform_subnet_pcf_zone1: {{gcp_terraform_subnet_pcf_zone1}}
+        gcp_terraform_subnet_pcf_zone2: {{gcp_terraform_subnet_pcf_zone2}}
