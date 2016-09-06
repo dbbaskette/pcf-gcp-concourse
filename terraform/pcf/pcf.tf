@@ -380,7 +380,7 @@ EOF
 //// Create NAT Route
 
 resource "google_compute_route" "nat-primary" {
-  name        = "${var.gcp_terraform_prefix}-nat-primary"
+  name        = "${var.gcp_terraform_prefix}-nat-pri"
   dest_range  = "0.0.0.0/0"
   network     = "${google_compute_network.vnet.name}"
   next_hop_instance = "${google_compute_instance.nat-gateway-pri.name}"
@@ -390,12 +390,12 @@ resource "google_compute_route" "nat-primary" {
 }
 
 resource "google_compute_route" "nat-secondary" {
-  name        = "${var.gcp_terraform_prefix}-nat-secondary"
+  name        = "${var.gcp_terraform_prefix}-nat-sec"
   dest_range  = "0.0.0.0/0"
   network     = "${google_compute_network.vnet.name}"
   next_hop_instance = "${google_compute_instance.nat-gateway-sec.name}"
-  next_hop_instance_zone = "${var.gcp_zone_1}"
-  priority    = 800
+  next_hop_instance_zone = "${var.gcp_zone_2}"
+  priority    = 801
   tags        = ["no-ip"]
 }
 
