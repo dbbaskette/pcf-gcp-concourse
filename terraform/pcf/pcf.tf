@@ -65,17 +65,10 @@ provider "google" {
     network       = "${google_compute_network.vnet.self_link}"
   }
 
-  //// Create Subnet for PCF - zone1
-  resource "google_compute_subnetwork" "subnet-pcf-zone1" {
-    name          = "${var.gcp_terraform_prefix}-subnet-pcf-${var.gcp_zone_1}"
+  //// Create Subnet for ERT
+  resource "google_compute_subnetwork" "subnet-pcf" {
+    name          = "${var.gcp_terraform_prefix}-subnet-pcf-${var.gcp_region}"
     ip_cidr_range = "${var.gcp_terraform_subnet_pcf_zone1}"
-    network       = "${google_compute_network.vnet.self_link}"
-  }
-
-    //// Create Subnet for PCF - zone2
-  resource "google_compute_subnetwork" "subnet-pcf-zone2" {
-    name          = "${var.gcp_terraform_prefix}-subnet-pcf-${var.gcp_zone_2}"
-    ip_cidr_range = "${var.gcp_terraform_subnet_pcf_zone2}"
     network       = "${google_compute_network.vnet.self_link}"
   }
 
