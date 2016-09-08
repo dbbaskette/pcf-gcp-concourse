@@ -6,6 +6,7 @@ variable "gcp_terraform_prefix" {}
 variable "gcp_terraform_subnet_bosh" {}
 variable "gcp_zone_1" {}
 variable "gcp_zone_2" {}
+variable "gcp_zone_3" {}
 variable "gcp_terraform_subnet_concourse" {}
 variable "gcp_terraform_subnet_vault" {}
 variable "gcp_terraform_subnet_pcf_zone1" {}
@@ -20,6 +21,7 @@ provider "google" {
   region = "${var.gcp_region}"
   # zone1 = "${var.gcp_zone_1}"
   # zone2 = "${var.gcp_zone_2}"
+  # zone3 = "${var.gcp_zone_3}"
   credentials = "${var.gcp_svc_acct_key}"
 }
 
@@ -362,6 +364,26 @@ resource "google_compute_instance" "nat-gateway-sec" {
     }
   }
 
+//// NAT Ter
+
+resource "google_compute_instance" "nat-gateway-ter" {
+  name           = "${var.gcp_terraform_prefix}-nat-gateway-ter"
+  machine_type   = "n1-standard-1"
+  zone           = "${var.gcp_zone_3}"
+  can_ip_forward = true
+  tags = ["${var.gcp_terraform_prefix}-instance", "nat-traverse", "allow-ssh"]
+
+  disk {
+    image = "ubuntu-1404-trusty-v20160610"
+  }
+
+  network_interface {
+    subnetwork = "${google_compute_subnetwork.subnet-bosh.name}"
+    access_config {
+      // Ephemeral
+    }
+  }
+
   metadata_startup_script = <<EOF
 #! /bin/bash
 sudo sh -c 'echo 1 > /proc/sys/net/ipv4/ip_forward'
@@ -392,6 +414,15 @@ resource "google_compute_route" "nat-secondary" {
   tags        = ["no-ip"]
 }
 
+resource "google_compute_route" "nat-tertiary" {
+  name        = "${var.gcp_terraform_prefix}-nat-ter"
+  dest_range  = "0.0.0.0/0"
+  network     = "${google_compute_network.vnet.name}"
+  next_hop_instance = "${google_compute_instance.nat-gateway-ter.name}"
+  next_hop_instance_zone = "${var.gcp_zone_3}"
+  priority    = 802
+  tags        = ["no-ip"]
+}
 
 ////Public IP Addresses
 output "CloudFoundry IP Address" {

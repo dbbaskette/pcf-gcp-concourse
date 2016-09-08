@@ -77,7 +77,7 @@ jobs:
     - get: pcf-gcp-concourse
       trigger: false
     - get: gcp-run-id
-      trigger: false
+      trigger: true
       passed: [WipeEnv-0]
   - task: terrafrom-iaas
     config:
