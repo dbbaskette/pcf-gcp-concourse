@@ -62,6 +62,7 @@ jobs:
         gcp_region: {{gcp_region}}
         gcp_zone_1: {{gcp_zone_1}}
         gcp_zone_2: {{gcp_zone_2}}
+        gcp_zone_3: {{gcp_zone_3}}
         gcp_svc_acct_key: {{gcp_svc_acct_key}}
         gcp_terraform_prefix: {{gcp_terraform_prefix}}
         arg_wipe: {{arg_wipe}}
@@ -92,6 +93,7 @@ jobs:
         gcp_region: {{gcp_region}}
         gcp_zone_1: {{gcp_zone_1}}
         gcp_zone_2: {{gcp_zone_2}}
+        gcp_zone_3: {{gcp_zone_3}}
         gcp_svc_acct_key: {{gcp_svc_acct_key}}
         gcp_terraform_prefix: {{gcp_terraform_prefix}}
         gcp_terraform_subnet_bosh: {{gcp_terraform_subnet_bosh}}
