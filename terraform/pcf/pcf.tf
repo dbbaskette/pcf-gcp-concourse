@@ -282,14 +282,13 @@ resource "google_compute_instance" "bosh-bastion" {
             ]
   }
 
-
-
   metadata {
     zone="${var.gcp_zone_1}"
     region="${var.gcp_region}"
   }
 
   metadata_startup_script = <<EOF
+
 #! /bin/bash
 adduser --disabled-password --gecos "" bosh
 apt-get update -y
@@ -341,7 +340,6 @@ resource "google_compute_instance" "nat-gateway-pri" {
 sudo sh -c 'echo 1 > /proc/sys/net/ipv4/ip_forward'
 sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 EOF
-
 }
 
 //// NAT Sec
@@ -363,6 +361,13 @@ resource "google_compute_instance" "nat-gateway-sec" {
       // Ephemeral
     }
   }
+
+    metadata_startup_script = <<EOF
+  #! /bin/bash
+  sudo sh -c 'echo 1 > /proc/sys/net/ipv4/ip_forward'
+  sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+  EOF
+}
 
 //// NAT Ter
 
