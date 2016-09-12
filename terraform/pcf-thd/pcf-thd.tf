@@ -228,7 +228,7 @@ resource "google_compute_instance" "bosh-bastion" {
   }
 
   service_account {
-    #scopes = ["cloud-platform"]
+    email = "c0-concourse@pcf-demos.google.com.iam.gserviceaccount.com"
     scopes = [
               "https://www.googleapis.com/auth/logging.write",
               "https://www.googleapis.com/auth/monitoring.write",
@@ -262,10 +262,12 @@ ssh-keygen -t rsa -f /home/bosh/.ssh/bosh -C bosh -N ''
 sed '1s/^/bosh:/' /home/bosh/.ssh/bosh.pub >> /tmp/metadata_users.pub.gcp
 chown -R bosh:bosh /home/bosh/.ssh
 adduser --disabled-password --gecos "" vcap
+mkdir -p /home/vcap/.ssh
 ssh-keygen -t rsa -f /home/vcap/.ssh/vcap -C vcap -N ''
 sed '1s/^/vcap:/' /home/vcap/.ssh/vcap.pub >> /tmp/metadata_users.pub.gcp
 chown -R vcap:vcap /home/vcap/.ssh
 gcloud compute project-info add-metadata --metadata-from-file sshKeys=/tmp/metadata_users.pub.gcp
+rm -rf /tmp/metadata_users.pub.gcp
 gem install bosh_cli
 gem install cf-uaac
 EOF
@@ -367,7 +369,7 @@ resource "google_compute_route" "nat-primary" {
   next_hop_instance = "${google_compute_instance.nat-gateway-pri.name}"
   next_hop_instance_zone = "${var.gcp_zone_1}"
   priority    = 800
-  tags        = ["${var.gcp_terraform_prefix}"]
+  tags        = ["pcf-nat"]
 }
 
 resource "google_compute_route" "nat-secondary" {
@@ -377,7 +379,7 @@ resource "google_compute_route" "nat-secondary" {
   next_hop_instance = "${google_compute_instance.nat-gateway-sec.name}"
   next_hop_instance_zone = "${var.gcp_zone_2}"
   priority    = 801
-  tags        = ["${var.gcp_terraform_prefix}"]
+  tags        = ["pcf-nat"]
 }
 
 resource "google_compute_route" "nat-tertiary" {
@@ -387,11 +389,11 @@ resource "google_compute_route" "nat-tertiary" {
   next_hop_instance = "${google_compute_instance.nat-gateway-ter.name}"
   next_hop_instance_zone = "${var.gcp_zone_3}"
   priority    = 802
-  tags        = ["${var.gcp_terraform_prefix}"]
+  tags        = ["pcf-nat"]
 }
 
 /////////////////////////////////
-//// Create OpsMan            ///
+///  Create OpsMan            ///
 /////////////////////////////////
 
 
