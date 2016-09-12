@@ -38,7 +38,7 @@ for y in ${ZONE[@]}; do
 	echo "----------------------------------------------------------------------------------------------"
   echo "Looking for bosh instance(s) first ...."
   echo "----------------------------------------------------------------------------------------------"
-  BOSH_INSTANCE_CMD="gcloud compute instances list --flatten tags.items[] --format json | jq '.[] | select ((.tags.items == \"$gcp_terraform_prefix-instance\" ) and (.metadata.items[].value == \"bosh\" and .metadata.items[].key == \"job\" )) | .name' | tr -d '\"' | sort -u"
+  BOSH_INSTANCE_CMD="gcloud compute instances list --flatten tags.items[] --format json | jq '.[] | select ((.tags.items == \"$gcp_terraform_prefix\" ) and (.metadata.items[].value == \"bosh\" and .metadata.items[].key == \"job\" )) | .name' | tr -d '\"' | sort -u"
   for i in $(eval $BOSH_INSTANCE_CMD);do
     echo "Deleting Instance:$i ..."
     gcloud compute instances delete $i --quiet --zone $y --delete-disks all
@@ -47,7 +47,7 @@ for y in ${ZONE[@]}; do
   echo "Removed bosh instance(s)...."
   echo "----------------------------------------------------------------------------------------------"
 
-  MY_CMD="gcloud compute instances list --flatten tags.items[] --format json | jq '.[] | select ((.tags.items == \"$gcp_terraform_prefix-instance\" ) and (.zone == \"$y\")) | .name' | tr -d '\"'"
+  MY_CMD="gcloud compute instances list --flatten tags.items[] --format json | jq '.[] | select ((.tags.items == \"$gcp_terraform_prefix\" ) and (.zone == \"$y\")) | .name' | tr -d '\"'"
   echo $MY_CMD
   for i in $(eval $MY_CMD); do
   	 echo "Deleting Instance:$i ..."
