@@ -14,8 +14,7 @@ export PATH=/opt/terraform/terraform:$PATH
   -var "gcp_zone_3=$gcp_zone_3" \
   -var "gcp_terraform_subnet_concourse=$gcp_terraform_subnet_concourse" \
   -var "gcp_terraform_subnet_vault=$gcp_terraform_subnet_vault" \
-  -var "gcp_terraform_subnet_pcf_zone1=$gcp_terraform_subnet_pcf_zone1" \
-  -var "gcp_terraform_subnet_pcf_zone2=$gcp_terraform_subnet_pcf_zone2" \
+  -var "gcp_terraform_subnet_ert=$gcp_terraform_subnet_pcf_zone1" \
   -var "pcf_ert_sys_domain=$pcf_ert_sys_domain" \
   -var "gcp_svc_acct_key=$gcp_svc_acct_key" \
   pcf-gcp-concourse/terraform/pcf-thd
@@ -30,8 +29,7 @@ export PATH=/opt/terraform/terraform:$PATH
     -var "gcp_zone_3=$gcp_zone_3" \
     -var "gcp_terraform_subnet_concourse=$gcp_terraform_subnet_concourse" \
     -var "gcp_terraform_subnet_vault=$gcp_terraform_subnet_vault" \
-    -var "gcp_terraform_subnet_pcf_zone1=$gcp_terraform_subnet_pcf_zone1" \
-    -var "gcp_terraform_subnet_pcf_zone2=$gcp_terraform_subnet_pcf_zone2" \
+    -var "gcp_terraform_subnet_ert=$gcp_terraform_subnet_pcf_zone1" \
     -var "pcf_ert_sys_domain=$pcf_ert_sys_domain" \
     -var "gcp_svc_acct_key=$gcp_svc_acct_key" \
     pcf-gcp-concourse/terraform/pcf-thd
