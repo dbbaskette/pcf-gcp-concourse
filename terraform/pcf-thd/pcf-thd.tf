@@ -228,7 +228,7 @@ resource "google_compute_instance" "bosh-bastion" {
   }
 
   service_account {
-    email = "c0-concourse@pcf-demos.google.com.iam.gserviceaccount.com"
+    #email = "c0-concourse@pcf-demos.google.com.iam.gserviceaccount.com"
     scopes = [
               "https://www.googleapis.com/auth/logging.write",
               "https://www.googleapis.com/auth/monitoring.write",
