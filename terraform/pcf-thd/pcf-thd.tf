@@ -16,9 +16,6 @@ variable "gcp_svc_acct_key" {}
 provider "google" {
   project = "${var.gcp_proj_id}"
   region = "${var.gcp_region}"
-  zone1 = "${var.gcp_zone_1}"
-  zone2 = "${var.gcp_zone_2}"
-  zone3 = "${var.gcp_zone_3}"
   credentials = "${var.gcp_svc_acct_key}"
 }
 
