@@ -51,7 +51,7 @@ provider "google" {
     network       = "${google_compute_network.vnet.self_link}"
   }
 
-  //// Create Firewall Rule for allow-ssh
+  //// Create Firewall Rule for allow-ssh from public
   resource "google_compute_firewall" "allow-ssh" {
     name    = "${var.gcp_terraform_prefix}-allow-ssh"
     network = "${google_compute_network.vnet.name}"
@@ -66,6 +66,34 @@ provider "google" {
     target_tags = ["allow-ssh"]
   }
 
+  //// Create Firewall Rule for allow-http from public
+  resource "google_compute_firewall" "allow-http" {
+    name    = "${var.gcp_terraform_prefix}-allow-http"
+    network = "${google_compute_network.vnet.name}"
+
+    allow {
+      protocol = "tcp"
+      ports    = ["80"]
+    }
+
+    source_ranges = ["0.0.0.0/0"]
+    target_tags = ["allow-http"]
+  }
+
+  //// Create Firewall Rule for allow-https from public
+  resource "google_compute_firewall" "allow-https" {
+    name    = "${var.gcp_terraform_prefix}-allow-https"
+    network = "${google_compute_network.vnet.name}"
+
+    allow {
+      protocol = "tcp"
+      ports    = ["443"]
+    }
+
+    source_ranges = ["0.0.0.0/0"]
+    target_tags = ["allow-https"]
+  }
+
   //// Create Firewall Rule for allow-ert-all
   resource "google_compute_firewall" "allow-ert-all" {
     name    = "${var.gcp_terraform_prefix}-allow-ert-all"
@@ -74,7 +102,6 @@ provider "google" {
     allow {
       protocol = "icmp"
     }
-
 
     allow {
       protocol = "tcp"
@@ -96,7 +123,7 @@ provider "google" {
     }
     allow {
       protocol = "tcp"
-      ports    = ["80","443", "4443"]
+      ports    = ["80","443","4443"]
     }
     source_ranges = ["0.0.0.0/0"]
     target_tags = ["pcf-public"]
@@ -363,7 +390,33 @@ resource "google_compute_route" "nat-tertiary" {
   tags        = ["${var.gcp_terraform_prefix}"]
 }
 
-////Public IP Addresses
+/////////////////////////////////
+//// Create OpsMan            ///
+/////////////////////////////////
+
+
+resource "google_compute_instance" "opsmgr-18-alpha" {
+  name           = "${var.gcp_terraform_prefix}-opsmgr-18-alpha"
+  machine_type   = "n1-standard-2"
+  zone           = "${var.gcp_zone_1}"
+  can_ip_forward = true
+  tags = ["${var.gcp_terraform_prefix}", "allow-http", "allow-https", "allow-ssh"]
+
+  disk {
+    image = "pivotal-ops-manager-20160902t190735-cac7a32"
+    size  = "120"
+  }
+
+  network_interface {
+    subnetwork = "${google_compute_subnetwork.subnet-bosh.name}"
+    access_config {
+      // Ephemeral
+    }
+  }
+}
+
+
+////Output Public IP Addresses
 output "CloudFoundry IP Address" {
     value = "${google_compute_address.cloudfoundry-public-ip.address}"
 }
