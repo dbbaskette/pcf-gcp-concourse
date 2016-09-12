@@ -27,6 +27,7 @@ gcloud config set compute/region $gcp_region
 declare -a ZONE=(
 $gcp_zone_1
 $gcp_zone_2
+$gcp_zone_3
 )
 
 for y in ${ZONE[@]}; do

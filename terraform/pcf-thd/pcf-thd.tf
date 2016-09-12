@@ -63,13 +63,18 @@ provider "google" {
       protocol = "icmp"
     }
     source_ranges = ["0.0.0.0/0"]
-    source_tags = ["allow-ssh"]
+    target_tags = ["allow-ssh"]
   }
 
   //// Create Firewall Rule for allow-ert-all
   resource "google_compute_firewall" "allow-ert-all" {
     name    = "${var.gcp_terraform_prefix}-allow-ert-all"
     network = "${google_compute_network.vnet.name}"
+
+    allow {
+      protocol = "icmp"
+    }
+
 
     allow {
       protocol = "tcp"
