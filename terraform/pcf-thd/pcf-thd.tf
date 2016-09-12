@@ -68,7 +68,7 @@ provider "google" {
 
   //// Create Firewall Rule for allow-ert-all
   resource "google_compute_firewall" "allow-ert-all" {
-    name    = "${var.gcp_terraform_prefix}-allow-all"
+    name    = "${var.gcp_terraform_prefix}-allow-ert-all"
     network = "${google_compute_network.vnet.name}"
 
     allow {
