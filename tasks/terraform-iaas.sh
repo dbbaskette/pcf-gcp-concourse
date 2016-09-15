@@ -31,3 +31,21 @@ export PATH=/opt/terraform/terraform:$PATH
     -var "pcf_ert_sys_domain=$pcf_ert_sys_domain" \
     -var "gcp_svc_acct_key=$gcp_svc_acct_key" \
     pcf-gcp-concourse/terraform/pcf-thd
+
+#############################################################
+#################### GCP Auth  & functions ##################
+#############################################################
+    echo $gcp_svc_acct_key > /tmp/blah
+    gcloud auth activate-service-account --key-file /tmp/blah
+    rm -rf /tmp/blah
+
+    gcloud config set project $gcp_proj_id
+    gcloud config set compute/region $gcp_region_1
+
+#############################################################
+#################### Print vcap ssh key for OpsMan###########
+#############################################################
+    echo "============================"
+    echo "SSH RSA Key for user vCAP..."
+    echo "============================"
+    gcloud compute ssh vcap@$gcp_terraform_prefix-bosh-bastion --zone $gcp_zone_1 --command "cat /home/vcap/.ssh/vcap"
