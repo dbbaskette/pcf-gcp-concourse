@@ -89,6 +89,7 @@ jobs:
       run:
         path: pcf-gcp-concourse/tasks/terraform-iaas.sh
       params:
+        gcp_pcf_deploy_method: {{gcp_pcf_deploy_method}}
         gcp_proj_id: {{gcp_proj_id}}
         gcp_region_1: {{gcp_region_1}}
         gcp_zone_1: {{gcp_zone_1}}

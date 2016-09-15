@@ -16,7 +16,7 @@ export PATH=/opt/terraform/terraform:$PATH
   -var "gcp_terraform_subnet_services_1_region_1=$gcp_terraform_subnet_services_1_region_1" \
   -var "pcf_ert_sys_domain=$pcf_ert_sys_domain" \
   -var "gcp_svc_acct_key=$gcp_svc_acct_key" \
-  pcf-gcp-concourse/terraform/pcf-thd
+  pcf-gcp-concourse/terraform/pcf-$gcp_pcf_deploy_method
 
   /opt/terraform/terraform apply \
     -var "gcp_proj_id=$gcp_proj_id" \
@@ -30,7 +30,7 @@ export PATH=/opt/terraform/terraform:$PATH
     -var "gcp_terraform_subnet_services_1_region_1=$gcp_terraform_subnet_services_1_region_1" \
     -var "pcf_ert_sys_domain=$pcf_ert_sys_domain" \
     -var "gcp_svc_acct_key=$gcp_svc_acct_key" \
-    pcf-gcp-concourse/terraform/pcf-thd
+    pcf-gcp-concourse/terraform/pcf-$gcp_pcf_deploy_method
 
 #############################################################
 #################### GCP Auth  & functions ##################
