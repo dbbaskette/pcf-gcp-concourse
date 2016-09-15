@@ -15,15 +15,6 @@ resources:
     branch: master
     private_key: {{githubsshkey}}
 
-- name: bosh-google-cpi-release
-  type: bosh-io-release
-  source:
-    repository: cloudfoundry-incubator/bosh-google-cpi-release
-
-- name: bosh-release
-  type: bosh-io-release
-  source:
-    repository: cloudfoundry/bosh
 
 - name: gcp-run-id
   type: semver
@@ -41,10 +32,6 @@ jobs:
   serial_groups: [full]
   plan:
   - aggregate:
-    - get: bosh-google-cpi-release
-      trigger: false
-    - get: bosh-release
-      trigger: false
     - get: pcf-gcp-concourse
       trigger: false
     - get: gcp-run-id

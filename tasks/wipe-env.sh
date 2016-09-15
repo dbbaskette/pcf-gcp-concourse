@@ -58,7 +58,7 @@ for y in ${ZONE[@]}; do
   echo "from zone $y ..."
   gcloud compute instances delete $gcp_instances --quiet --zone $y --delete-disks all
 
-  MY_CMD="gcloud compute instances list | grep $gcp_terraform_prefix | grep $y | awk '{print$1}'"
+  MY_CMD="gcloud compute instances list | grep $gcp_terraform_prefix | grep $y | awk '{print\$1}'"
   echo $MY_CMD
   gcp_instances=""
   for i in $(eval $MY_CMD); do
