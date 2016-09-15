@@ -102,13 +102,12 @@ provider "google" {
   resource "google_compute_firewall" "allow-ssh" {
     name    = "${var.gcp_terraform_prefix}-allow-ssh"
     network = "${google_compute_network.vnet.name}"
+
     allow {
       protocol = "tcp"
       ports    = ["22"]
     }
-    allow {
-      protocol = "icmp"
-    }
+
     source_ranges = ["0.0.0.0/0"]
     target_tags = ["allow-ssh"]
   }
@@ -141,7 +140,8 @@ provider "google" {
     target_tags = ["allow-https"]
   }
 
-  //// Create Firewall Rule for allow-ert-all
+  //// Create Firewall Rule for allow-ert-all com between bosh deployed ert jobs
+  //// This will match the default OpsMan tag configured for the deployment
   resource "google_compute_firewall" "allow-ert-all" {
     name    = "${var.gcp_terraform_prefix}-allow-ert-all"
     network = "${google_compute_network.vnet.name}"
@@ -161,34 +161,62 @@ provider "google" {
     source_tags = ["${var.gcp_terraform_prefix}"]
   }
 
+  //// Create Firewall Rule for allow-ert-egress-nat for com from ert-jobs to instances with-pub ips
+  resource "google_compute_firewall" "allow-ert-egress-nat" {
+    name    = "${var.gcp_terraform_prefix}-allow-ert-egress-nat"
+    network = "${google_compute_network.vnet.name}"
+
+    allow {
+      protocol = "icmp"
+    }
+
+    allow {
+      protocol = "tcp"
+    }
+
+    allow {
+      protocol = "udp"
+    }
+
+    source_tags = ["${var.gcp_terraform_prefix}"]
+    target_tags = ["no-nat-route"]
+  }
+
+  //// Create Firewall Rule for allow-ert-ingress-nat for com from instances with-pub ips to ert-jobs
+  resource "google_compute_firewall" "allow-ert-egress-nat" {
+    name    = "${var.gcp_terraform_prefix}-allow-ert-egress-nat"
+    network = "${google_compute_network.vnet.name}"
+
+    allow {
+      protocol = "icmp"
+    }
+
+    allow {
+      protocol = "tcp"
+    }
+
+    allow {
+      protocol = "udp"
+    }
+
+    source_tags = ["no-nat-route"]
+    target_tags = ["${var.gcp_terraform_prefix}"]
+  }
+
   //// Create Firewall Rule for PCF Public Network Access
   resource "google_compute_firewall" "pcf-public" {
     name    = "${var.gcp_terraform_prefix}-pcf-public"
     network = "${google_compute_network.vnet.name}"
-    allow {
-      protocol = "icmp"
-    }
-    allow {
-      protocol = "tcp"
-      ports    = ["80","443","4443"]
-    }
-    source_ranges = ["0.0.0.0/0"]
-    target_tags = ["pcf-public"]
-}
-
-  //// Create Firewall Rule for cf cli - SSH
-  resource "google_compute_firewall" "pcf-public-cfcli-ssh" {
-    name    = "${var.gcp_terraform_prefix}-pcf-public-cfcli-ssh"
-    network = "${google_compute_network.vnet.name}"
 
     allow {
       protocol = "tcp"
-      ports    = ["2222"]
-
+      ports    = ["80","443","2222"]
     }
+
     source_ranges = ["0.0.0.0/0"]
-    target_tags = ["pcf-public-cfcli-ssh"]
+    target_tags = ["${var.gcp_terraform_prefix}-pcf-public-ert","${var.gcp_terraform_prefix}-pcf-public-cfcli-ssh"]
 }
+
 
 ///////////======================//////////////
 //// Load Balancing =============//////////////
@@ -246,13 +274,6 @@ provider "google" {
   port_range = "2222"
 }
 
-  //// Create Forwarding for PCF - wss
-  resource "google_compute_forwarding_rule" "pcf-wss" {
-  name       = "${var.gcp_terraform_prefix}-pcf-wss"
-  target     = "${google_compute_target_pool.pcf-public-ert.self_link}"
-  ip_address = "${google_compute_address.cloudfoundry-public-ip.address}"
-  port_range = "4443"
-}
 
 
 ///////////////////////////////////////////////
@@ -265,7 +286,7 @@ resource "google_compute_instance" "bosh-bastion" {
   machine_type = "n1-standard-1"
   zone         = "${var.gcp_zone_1}"
 
-  tags = ["${var.gcp_terraform_prefix}", "allow-ssh"]
+  tags = ["no-nat-route", "allow-ssh"]
 
   disk {
     image = "ubuntu-1404-trusty-v20160610"
@@ -338,7 +359,7 @@ resource "google_compute_instance" "nat-gateway-pri" {
   machine_type   = "n1-standard-1"
   zone           = "${var.gcp_zone_1}"
   can_ip_forward = true
-  tags = ["${var.gcp_terraform_prefix}", "allow-ssh"]
+  tags = ["no-nat-route"]
 
   disk {
     image = "ubuntu-1404-trusty-v20160610"
@@ -365,7 +386,7 @@ resource "google_compute_instance" "nat-gateway-sec" {
   machine_type   = "n1-standard-1"
   zone           = "${var.gcp_zone_2}"
   can_ip_forward = true
-  tags = ["${var.gcp_terraform_prefix}", "allow-ssh"]
+  tags = ["no-nat-route"]
 
   disk {
     image = "ubuntu-1404-trusty-v20160610"
@@ -392,7 +413,7 @@ resource "google_compute_instance" "nat-gateway-ter" {
   machine_type   = "n1-standard-1"
   zone           = "${var.gcp_zone_3}"
   can_ip_forward = true
-  tags = ["${var.gcp_terraform_prefix}", "allow-ssh"]
+  tags = ["no-nat-route"]
 
   disk {
     image = "ubuntu-1404-trusty-v20160610"
@@ -426,7 +447,7 @@ resource "google_compute_route" "nat-primary" {
   next_hop_instance = "${google_compute_instance.nat-gateway-pri.name}"
   next_hop_instance_zone = "${var.gcp_zone_1}"
   priority    = 800
-  tags        = ["pcf-nat"]
+  tags        = ["no-nat-route"]
 }
 
 resource "google_compute_route" "nat-secondary" {
@@ -436,7 +457,7 @@ resource "google_compute_route" "nat-secondary" {
   next_hop_instance = "${google_compute_instance.nat-gateway-sec.name}"
   next_hop_instance_zone = "${var.gcp_zone_2}"
   priority    = 801
-  tags        = ["pcf-nat"]
+  tags        = ["no-nat-route"]
 }
 
 resource "google_compute_route" "nat-tertiary" {
@@ -446,12 +467,12 @@ resource "google_compute_route" "nat-tertiary" {
   next_hop_instance = "${google_compute_instance.nat-gateway-ter.name}"
   next_hop_instance_zone = "${var.gcp_zone_3}"
   priority    = 802
-  tags        = ["pcf-nat"]
+  tags        = ["no-nat-route"]
 }
 
 
 ///////////////////////////////////////////////
-//// (6)Create Opsman  ////////////////////////
+//// (6)Create Pivotal Opsman  ////////////////
 ///////////////////////////////////////////////
 
 
@@ -460,7 +481,7 @@ resource "google_compute_instance" "opsmgr-18-alpha" {
   machine_type   = "n1-standard-2"
   zone           = "${var.gcp_zone_1}"
   can_ip_forward = true
-  tags = ["${var.gcp_terraform_prefix}", "allow-http", "allow-https", "allow-ssh"]
+  tags = ["no-nat-route", "allow-https", "allow-ssh"]
 
   disk {
     image = "pivotal-ops-manager-20160909t232431-3386f8a"
