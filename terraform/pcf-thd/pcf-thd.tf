@@ -1,13 +1,14 @@
 //// Declare vars
 
 variable "gcp_proj_id" {}
-variable "gcp_region" {}
+variable "gcp_region_1" {}
 variable "gcp_terraform_prefix" {}
 variable "gcp_terraform_subnet_bosh" {}
 variable "gcp_zone_1" {}
 variable "gcp_zone_2" {}
 variable "gcp_zone_3" {}
-variable "gcp_terraform_subnet_ert" {}
+variable "gcp_terraform_subnet_ert_region_1" {}
+variable "gcp_terraform_subnet_services_1_region_1" {}
 variable "pcf_ert_sys_domain" {}
 variable "gcp_svc_acct_key" {}
 
@@ -15,7 +16,7 @@ variable "gcp_svc_acct_key" {}
 
 provider "google" {
   project = "${var.gcp_proj_id}"
-  region = "${var.gcp_region}"
+  region = "${var.gcp_region_1}"
   credentials = "${var.gcp_svc_acct_key}"
 }
 
@@ -33,21 +34,28 @@ provider "google" {
   //// Create CloudFoundry Static IP address
   resource "google_compute_address" "cloudfoundry-public-ip" {
     name   = "${var.gcp_terraform_prefix}-cloudfoundry-public-ip"
-    region = "${var.gcp_region}"
+    region = "${var.gcp_region_1}"
   }
 
 
   //// Create Subnet for the BOSH director
   resource "google_compute_subnetwork" "subnet-bosh" {
-    name          = "${var.gcp_terraform_prefix}-subnet-bosh-${var.gcp_region}"
+    name          = "${var.gcp_terraform_prefix}-subnet-bosh-${var.gcp_region_1}"
     ip_cidr_range = "${var.gcp_terraform_subnet_bosh}"
     network       = "${google_compute_network.vnet.self_link}"
   }
 
   //// Create Subnet for ERT
   resource "google_compute_subnetwork" "subnet-ert" {
-    name          = "${var.gcp_terraform_prefix}-subnet-ert-${var.gcp_region}"
-    ip_cidr_range = "${var.gcp_terraform_subnet_ert}"
+    name          = "${var.gcp_terraform_prefix}-subnet-ert-${var.gcp_region_1}"
+    ip_cidr_range = "${var.gcp_terraform_subnet_ert_region_1}"
+    network       = "${google_compute_network.vnet.self_link}"
+  }
+
+  //// Create Subnet for Services Tile 1
+  resource "google_compute_subnetwork" "subnet-services-1" {
+    name          = "${var.gcp_terraform_prefix}-subnet-services-1-${var.gcp_region_1}"
+    ip_cidr_range = "${var.gcp_terraform_subnet_services_1_region_1}"
     network       = "${google_compute_network.vnet.self_link}"
   }
 
@@ -240,7 +248,7 @@ resource "google_compute_instance" "bosh-bastion" {
 
   metadata {
     zone="${var.gcp_zone_1}"
-    region="${var.gcp_region}"
+    region="${var.gcp_region_1}"
   }
 
   metadata_startup_script = <<EOF
@@ -405,7 +413,7 @@ resource "google_compute_instance" "opsmgr-18-alpha" {
   tags = ["${var.gcp_terraform_prefix}", "allow-http", "allow-https", "allow-ssh"]
 
   disk {
-    image = "pivotal-ops-manager-20160902t190735-cac7a32"
+    image = "pivotal-ops-manager-20160909t232431-3386f8a"
     size  = "120"
   }
 
@@ -415,15 +423,4 @@ resource "google_compute_instance" "opsmgr-18-alpha" {
       // Ephemeral
     }
   }
-}
-
-
-////Output Public IP Addresses
-output "CloudFoundry IP Address" {
-    value = "${google_compute_address.cloudfoundry-public-ip.address}"
-}
-
-
-output "Regional - CloudFoundry Subnet" {
-    value = "${var.gcp_terraform_subnet_ert}"
 }

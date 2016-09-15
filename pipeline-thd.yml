@@ -59,7 +59,7 @@ jobs:
         path: pcf-gcp-concourse/tasks/wipe-env.sh
       params:
         gcp_proj_id: {{gcp_proj_id}}
-        gcp_region: {{gcp_region}}
+        gcp_region: {{gcp_region_1}}
         gcp_zone_1: {{gcp_zone_1}}
         gcp_zone_2: {{gcp_zone_2}}
         gcp_zone_3: {{gcp_zone_3}}
@@ -90,14 +90,12 @@ jobs:
         path: pcf-gcp-concourse/tasks/terraform-iaas.sh
       params:
         gcp_proj_id: {{gcp_proj_id}}
-        gcp_region: {{gcp_region}}
+        gcp_region_1: {{gcp_region_1}}
         gcp_zone_1: {{gcp_zone_1}}
         gcp_zone_2: {{gcp_zone_2}}
         gcp_zone_3: {{gcp_zone_3}}
         gcp_svc_acct_key: {{gcp_svc_acct_key}}
         gcp_terraform_prefix: {{gcp_terraform_prefix}}
         gcp_terraform_subnet_bosh: {{gcp_terraform_subnet_bosh}}
-        gcp_terraform_subnet_concourse: {{gcp_terraform_subnet_concourse}}
-        gcp_terraform_subnet_vault: {{gcp_terraform_subnet_vault}}
-        gcp_terraform_subnet_pcf_zone1: {{gcp_terraform_subnet_pcf_zone1}}
-        gcp_terraform_subnet_pcf_zone2: {{gcp_terraform_subnet_pcf_zone2}}
+        gcp_terraform_subnet_ert_region_1: {{gcp_terraform_subnet_ert_region_1}}
+        gcp_terraform_subnet_services_1_region_1: {{gcp_terraform_subnet_services_1_region_1}}
