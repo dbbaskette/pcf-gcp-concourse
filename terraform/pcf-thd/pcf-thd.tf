@@ -1,4 +1,7 @@
-//// Declare vars
+///////////////////////////////////////////////
+//// (1) Declare Vars /////////////////////////
+///////////////////////////////////////////////
+
 
 variable "gcp_proj_id" {}
 variable "gcp_region_1" {}
@@ -12,7 +15,11 @@ variable "gcp_terraform_subnet_services_1_region_1" {}
 variable "pcf_ert_sys_domain" {}
 variable "gcp_svc_acct_key" {}
 
-//// Set GCP Provider info
+
+///////////////////////////////////////////////
+//// (2) Set GCP Provider info ////////////////
+///////////////////////////////////////////////
+
 
 provider "google" {
   project = "${var.gcp_proj_id}"
@@ -20,16 +27,23 @@ provider "google" {
   credentials = "${var.gcp_svc_acct_key}"
 }
 
-/////////////////////////////////
-//// Create Network Objects   ///
-/////////////////////////////////
 
-//// Firewall Nets, Subnets, & ACLs
+///////////////////////////////////////////////
+//// (3) Create Network Objects   /////////////
+///////////////////////////////////////////////
+
+///////////======================//////////////
+//// Network(s) =================//////////////
+///////////======================//////////////
 
   //// Create GCP Virtual Network
   resource "google_compute_network" "vnet" {
     name       = "${var.gcp_terraform_prefix}-vnet"
   }
+
+///////////======================//////////////
+//// Static IP(s) ===============//////////////
+///////////======================//////////////
 
   //// Create CloudFoundry Static IP address
   resource "google_compute_address" "cloudfoundry-public-ip" {
@@ -37,6 +51,27 @@ provider "google" {
     region = "${var.gcp_region_1}"
   }
 
+  //// Create NAT 1 Static IP address
+  resource "google_compute_address" "nat1-public-ip" {
+    name   = "${var.gcp_terraform_prefix}-nat1-public-ip"
+    region = "${var.gcp_region_1}"
+  }
+
+  //// Create NAT 2 Static IP address
+  resource "google_compute_address" "nat2-public-ip" {
+    name   = "${var.gcp_terraform_prefix}-nat2-public-ip"
+    region = "${var.gcp_region_2}"
+  }
+
+  //// Create NAT 3 Static IP address
+  resource "google_compute_address" "nat3-public-ip" {
+    name   = "${var.gcp_terraform_prefix}-nat3-public-ip"
+    region = "${var.gcp_region_3}"
+  }
+
+///////////======================//////////////
+//// Subnet(s) ==================//////////////
+///////////======================//////////////
 
   //// Create Subnet for the BOSH director
   resource "google_compute_subnetwork" "subnet-bosh" {
@@ -58,6 +93,10 @@ provider "google" {
     ip_cidr_range = "${var.gcp_terraform_subnet_services_1_region_1}"
     network       = "${google_compute_network.vnet.self_link}"
   }
+
+///////////======================//////////////
+//// Firewall Rule(s) ===========//////////////
+///////////======================//////////////
 
   //// Create Firewall Rule for allow-ssh from public
   resource "google_compute_firewall" "allow-ssh" {
@@ -151,7 +190,9 @@ provider "google" {
     target_tags = ["pcf-public-cfcli-ssh"]
 }
 
-//// Load Balanced Objects
+///////////======================//////////////
+//// Load Balancing =============//////////////
+///////////======================//////////////
 
   //// Create HTTP Health Check Rule for PCF ERT
   resource "google_compute_http_health_check" "pcf-public-ert" {
@@ -213,9 +254,11 @@ provider "google" {
   port_range = "4443"
 }
 
-/////////////////////////////////////
-//// Create BOSH bastion instance ///
-/////////////////////////////////////
+
+///////////////////////////////////////////////
+//// (4)Create BOSH bastion instance //////////
+///////////////////////////////////////////////
+
 
 resource "google_compute_instance" "bosh-bastion" {
   name         = "${var.gcp_terraform_prefix}-bosh-bastion"
@@ -283,9 +326,10 @@ EOF
 
 }
 
-/////////////////////////////////
-//// Create NAT instance(s)   ///
-/////////////////////////////////
+///////////////////////////////////////////////
+//// (4)Create NAT instance(s) ////////////////
+///////////////////////////////////////////////
+
 
 //// NAT Primary Instance
 
@@ -303,7 +347,7 @@ resource "google_compute_instance" "nat-gateway-pri" {
   network_interface {
     subnetwork = "${google_compute_subnetwork.subnet-bosh.name}"
     access_config {
-      // Ephemeral
+      nat_ip = "${google_compute_address.nat1-public-ip.address}"
     }
   }
 
@@ -330,7 +374,7 @@ resource "google_compute_instance" "nat-gateway-sec" {
   network_interface {
     subnetwork = "${google_compute_subnetwork.subnet-bosh.name}"
     access_config {
-      // Ephemeral
+      nat_ip = "${google_compute_address.nat2-public-ip.address}"
     }
   }
 
@@ -357,7 +401,7 @@ resource "google_compute_instance" "nat-gateway-ter" {
   network_interface {
     subnetwork = "${google_compute_subnetwork.subnet-bosh.name}"
     access_config {
-      // Ephemeral
+      nat_ip = "${google_compute_address.nat3-public-ip.address}"
     }
   }
 
@@ -369,7 +413,11 @@ resource "google_compute_instance" "nat-gateway-ter" {
 
 }
 
-//// Create NAT Route
+
+///////////////////////////////////////////////
+//// (5)Create Route(s)  //////////////////////
+///////////////////////////////////////////////
+
 
 resource "google_compute_route" "nat-primary" {
   name        = "${var.gcp_terraform_prefix}-nat-pri"
@@ -401,9 +449,10 @@ resource "google_compute_route" "nat-tertiary" {
   tags        = ["pcf-nat"]
 }
 
-/////////////////////////////////
-///  Create OpsMan            ///
-/////////////////////////////////
+
+///////////////////////////////////////////////
+//// (6)Create Opsman  ////////////////////////
+///////////////////////////////////////////////
 
 
 resource "google_compute_instance" "opsmgr-18-alpha" {
