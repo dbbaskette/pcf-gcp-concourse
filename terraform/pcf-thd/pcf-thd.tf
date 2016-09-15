@@ -60,13 +60,13 @@ provider "google" {
   //// Create NAT 2 Static IP address
   resource "google_compute_address" "nat2-public-ip" {
     name   = "${var.gcp_terraform_prefix}-nat2-public-ip"
-    region = "${var.gcp_region_2}"
+    region = "${var.gcp_region_1}"
   }
 
   //// Create NAT 3 Static IP address
   resource "google_compute_address" "nat3-public-ip" {
     name   = "${var.gcp_terraform_prefix}-nat3-public-ip"
-    region = "${var.gcp_region_3}"
+    region = "${var.gcp_region_1}"
   }
 
 ///////////======================//////////////
