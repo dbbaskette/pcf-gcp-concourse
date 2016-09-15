@@ -20,7 +20,7 @@ gcloud auth activate-service-account --key-file /tmp/blah
 rm -rf /tmp/blah
 
 gcloud config set project $gcp_proj_id
-gcloud config set compute/region $gcp_region
+gcloud config set compute/region $gcp_region_1
 
 
 # Wipe all GCP Instances for given prefix within Zone ##MG Todo: Serial processing is slow,  look for a quicker way to wipe Instances
@@ -34,7 +34,7 @@ for y in ${ZONE[@]}; do
 	echo "----------------------------------------------------------------------------------------------"
   echo "Will delete all compute/instances objects with the prefix=$gcp_terraform_prefix in:"
 	echo "project=$gcp_proj_id"
-	echo "region=$gcp_region"
+	echo "region=$gcp_region_1"
 	echo "zone=$y"
 	echo "----------------------------------------------------------------------------------------------"
   echo "Looking for bosh instance(s) first ...."
@@ -76,21 +76,21 @@ declare -a COMPONENT=(
 
 for z in ${COMPONENT[@]}; do
 	echo "----------------------------------------------------------------------------------------------"
-	echo "Will delete all $z objects with the prefix=$gcp_terraform_prefix in region=$gcp_region"
+	echo "Will delete all $z objects with the prefix=$gcp_terraform_prefix in region=$gcp_region_1"
 	echo "----------------------------------------------------------------------------------------------"
   if [[ $z == "subnets" ]]; then z="networks $z"; fi
 	for i in $(gcloud compute $z list  | grep $gcp_terraform_prefix | grep -v default | awk '{print $1}'); do
    echo "Deleting $z:$i ..."
 	 if [[ $z == "subnets" ]]; then
 		 	echo "using gcloud cli beta function to delete subnet..."
-	    gcloud beta compute networks $z delete $i --region $gcp_region --quiet
+	    gcloud beta compute networks $z delete $i --region $gcp_region_1 --quiet
 	 else
 		 	gcloud compute $z delete $i --quiet;
 	 fi
   done
 done
 echo "=============================================================================================="
-echo "All compute/networks objects with the prefix=$gcp_terraform_prefix in region=$gcp_region have been wiped !!!"
+echo "All compute/networks objects with the prefix=$gcp_terraform_prefix in region=$gcp_region_1 have been wiped !!!"
 echo "=============================================================================================="
 
 #Wipe Images ,  this pretty much means we want a deicated project

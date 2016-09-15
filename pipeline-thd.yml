@@ -59,7 +59,7 @@ jobs:
         path: pcf-gcp-concourse/tasks/wipe-env.sh
       params:
         gcp_proj_id: {{gcp_proj_id}}
-        gcp_region: {{gcp_region_1}}
+        gcp_region_1: {{gcp_region_1}}
         gcp_zone_1: {{gcp_zone_1}}
         gcp_zone_2: {{gcp_zone_2}}
         gcp_zone_3: {{gcp_zone_3}}
