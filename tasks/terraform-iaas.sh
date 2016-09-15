@@ -48,4 +48,5 @@ export PATH=/opt/terraform/terraform:$PATH
     echo "============================"
     echo "SSH RSA Key for user vCAP..."
     echo "============================"
+    ssh-keygen -b 2048 -t rsa -f ~/.ssh/google_compute_engine -q -N ""
     gcloud compute ssh vcap@$gcp_terraform_prefix-bosh-bastion --zone $gcp_zone_1 --command "cat /home/vcap/.ssh/vcap"
