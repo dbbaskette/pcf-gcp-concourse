@@ -87,3 +87,34 @@ jobs:
         gcp_terraform_subnet_bosh: {{gcp_terraform_subnet_bosh}}
         gcp_terraform_subnet_ert_region_1: {{gcp_terraform_subnet_ert_region_1}}
         gcp_terraform_subnet_services_1_region_1: {{gcp_terraform_subnet_services_1_region_1}}
+
+- name: Config-OpsMan-3
+  serial: true
+  max_in_flight: 1
+  serial_groups: [full]
+  plan:
+  - aggregate:
+    - get: pcf-gcp-concourse
+      trigger: false
+    - get: gcp-run-id
+      trigger: true
+      passed: [Terraform-IaaS-1]
+  - task: config-opsman
+    config:
+      platform: linux
+      image: docker:///virtmerlin/pcf-gcp-worker
+      inputs:
+        - name: pcf-gcp-concourse
+      run:
+        path: pcf-gcp-concourse/tasks/opsman-config.sh
+      params:
+        gcp_pcf_deploy_method: {{gcp_pcf_deploy_method}}
+        gcp_proj_id: {{gcp_proj_id}}
+        gcp_region_1: {{gcp_region_1}}
+        gcp_zone_1: {{gcp_zone_1}}
+        gcp_zone_2: {{gcp_zone_2}}
+        gcp_zone_3: {{gcp_zone_3}}
+        gcp_svc_acct_key: {{gcp_svc_acct_key}}
+        gcp_terraform_prefix: {{gcp_terraform_prefix}}
+        pcf_opsman_admin: {{pcf_opsman_admin}}
+        pcf_opsman_admin_passwd: {{pcf_opsman_admin_passwd}} 
