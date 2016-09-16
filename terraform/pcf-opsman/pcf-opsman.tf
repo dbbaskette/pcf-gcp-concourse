@@ -161,9 +161,9 @@ provider "google" {
     source_tags = ["${var.gcp_terraform_prefix}"]
   }
 
-  //// Create Firewall Rule for allow-ert-egress-nat for com from ert-jobs to instances with-pub ips
-  resource "google_compute_firewall" "allow-ert-egress-nat" {
-    name    = "${var.gcp_terraform_prefix}-allow-ert-egress-nat"
+  //// Create Firewall Rule for allow-ert-egress-no-nat for com from ert-jobs to instances with-pub ips
+  resource "google_compute_firewall" "allow-ert-egress-no-nat" {
+    name    = "${var.gcp_terraform_prefix}-allow-ert-egress-no-nat"
     network = "${google_compute_network.vnet.name}"
 
     allow {
@@ -182,9 +182,9 @@ provider "google" {
     target_tags = ["no-nat-route"]
   }
 
-  //// Create Firewall Rule for allow-ert-ingress-nat for com from instances with-pub ips to ert-jobs
-  resource "google_compute_firewall" "allow-ert-egress-nat" {
-    name    = "${var.gcp_terraform_prefix}-allow-ert-egress-nat"
+  //// Create Firewall Rule for allow-ert-ingress-no-nat for com from instances with-pub ips to ert-jobs
+  resource "google_compute_firewall" "allow-ert-ingress-no-nat" {
+    name    = "${var.gcp_terraform_prefix}-allow-ert-ingress-no-nat"
     network = "${google_compute_network.vnet.name}"
 
     allow {
