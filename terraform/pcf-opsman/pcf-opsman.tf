@@ -484,7 +484,7 @@ resource "google_compute_instance" "opsmgr-18-alpha" {
   tags = ["no-nat-route", "allow-https", "allow-ssh"]
 
   disk {
-    image = "pivotal-ops-manager-20160909t232431-3386f8a"
+    image = "pivotal-ops-manager-20160915t181006-100a670"
     size  = "120"
   }
 
