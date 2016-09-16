@@ -31,12 +31,12 @@ opsmanip=$(gcloud compute addresses list | grep $gcp_terraform_prefix--opsmgr | 
 ### Config Opsman Local Auth ###
 curl -k -X POST -H "Content-Type: application/json" \
 -d '{ "setup": {
-    "decryption_passphrase": "P1v0t4l!",
-    "decryption_passphrase_confirmation":"P1v0t4l!",
+    "decryption_passphrase": "P1v0t4l",
+    "decryption_passphrase_confirmation":"P1v0t4l",
     "eula_accepted": "true",
     "identity_provider": "internal",
     "admin_user_name": "admin",
-    "admin_password": "P1v0t4l!",
-    "admin_password_confirmation": "P1v0t4l!"
+    "admin_password": "P1v0t4l",
+    "admin_password_confirmation": "P1v0t4l"
   } }' \
 "https://$opsmanip/api/v0/setup"
