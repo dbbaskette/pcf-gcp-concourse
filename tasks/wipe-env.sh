@@ -54,9 +54,12 @@ for y in ${ZONE[@]}; do
   for i in $(eval $MY_CMD); do
   	 gcp_instances="$gcp_instances $i"
   done
-  echo "Deleting Tagged Instances:$gcp_instances"
-  echo "from zone $y ..."
-  gcloud compute instances delete $gcp_instances --quiet --zone $y --delete-disks all
+
+  if [ -n "$gcp_instances" ]; then
+      echo "Deleting Tagged Instances:$gcp_instances"
+      echo "from zone $y ..."
+      gcloud compute instances delete $gcp_instances --quiet --zone $y --delete-disks all
+  fi
 
   MY_CMD="gcloud compute instances list | grep $gcp_terraform_prefix | grep $y | awk '{print\$1}'"
   echo $MY_CMD
@@ -64,9 +67,12 @@ for y in ${ZONE[@]}; do
   for i in $(eval $MY_CMD); do
      gcp_instances="$gcp_instances $i"
   done
-  echo "Deleting Matching Prefix Instances:$gcp_instances"
-  echo "from zone $y ..."
-  gcloud compute instances delete $gcp_instances --quiet --zone $y --delete-disks all
+
+  if [ -n "$gcp_instances" ]; then
+      echo "Deleting Matching Prefix Instances:$gcp_instances"
+      echo "from zone $y ..."
+      gcloud compute instances delete $gcp_instances --quiet --zone $y --delete-disks all
+  fi
 
 	echo "=============================================================================================="
   echo "All compute/instances with the prefix=$gcp_terraform_prefix in zone=$y have been wiped !!!"
