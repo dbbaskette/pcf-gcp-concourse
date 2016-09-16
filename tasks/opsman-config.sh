@@ -26,7 +26,7 @@ set -e
     }
 
 ### Get Opsman IP Address ###
-opsmanip=$(gcloud compute addresses list | grep $gcp_terraform_prefix-cloudfoundry-public-ip | awk '{print$3}')
+opsmanip=$(gcloud compute instances list | grep $gcp_terraform_prefix-opsmgr | awk '{print$4}')
 echo "OpsMan IP:$opsmanip"
 ### Config Opsman Local Auth ###
 curl -k -X POST -H "Content-Type: application/json" \
