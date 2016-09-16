@@ -59,6 +59,7 @@ export PATH=/opt/terraform/terraform:$PATH
 #############################################################
 #################### Print vcap ssh key for OpsMan###########
 #############################################################
+ssh-keygen -b 2048 -t rsa -f ~/.ssh/google_compute_engine -q -N ""
 
 GCP_CMD="while [ ! -f /home/vcap/.ssh/vcap ]; do echo \"metadata_startup_script has not created vcap ssh keys yet...\"; sleep 10 ; done && echo \"Found it :) ...\""
 fn_gcp_ssh "$GCP_CMD" vcap
@@ -67,5 +68,5 @@ fn_gcp_ssh "$GCP_CMD" vcap
     echo "============================"
     echo "SSH RSA Key for user vCAP..."
     echo "============================"
-    ssh-keygen -b 2048 -t rsa -f ~/.ssh/google_compute_engine -q -N ""
-    gcloud compute ssh vcap@$gcp_terraform_prefix-bosh-bastion --zone $gcp_zone_1 --command "cat /home/vcap/.ssh/vcap"
+    GCP_CMD="cat /home/vcap/.ssh/vcap"
+    fn_gcp_ssh "$GCP_CMD" vcap
