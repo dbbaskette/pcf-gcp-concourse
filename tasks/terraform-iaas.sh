@@ -42,9 +42,28 @@ export PATH=/opt/terraform/terraform:$PATH
     gcloud config set project $gcp_proj_id
     gcloud config set compute/region $gcp_region_1
 
+    function fn_gcp_ssh {
+
+      if [ ! $2 ]; then
+        gcp_ssh_user="bosh"
+      else
+        gcp_ssh_user=$2
+      fi
+      echo "gcloud compute ssh using id=$gcp_ssh_user ..."
+
+      gcloud compute ssh $gcp_ssh_user@${gcp_terraform_prefix}-bosh-bastion \
+      --command "$1" \
+      --zone ${gcp_zone_1} --quiet
+    }
+
 #############################################################
 #################### Print vcap ssh key for OpsMan###########
 #############################################################
+
+GCP_CMD="while [ ! -f /home/vcap/.ssh/vcap ]; do echo \"metadata_startup_script has not created vcap ssh keys yet...\"; sleep 10 ; done && echo \"Found it :) ...\""
+fn_gcp_ssh "$GCP_CMD" vcap
+
+
     echo "============================"
     echo "SSH RSA Key for user vCAP..."
     echo "============================"
